@@ -25,8 +25,8 @@ def get_players(file_path, logger, index=None, player_target_string=PLAYER_TARGE
 				new_index = len(lines) - index - 1
 				for line in lines[new_index:]:
 					if player_target_string in line:
-						logger.info("Encontré el PLAYER_TARGET_STRING")
-						player = line.split("_")[1].split(" (")[0].replace(" ", "_")
+						logger.info("Encontré el PLAYER_TARGET_STRING.")
+						player = line.replace(line.split("_")[0] + "_", "").replace(" (" + line.split(" (")[1], "")
 						if player in players_list:
 							continue
 						players_list.append(player)
