@@ -28,7 +28,7 @@
   <property name="windowTitle">
    <string>Fall Guys Anti Sniper</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <widget class="QWidget" name="main_widget">
    <widget class="QWidget" name="snipers_widget" native="true">
     <property name="geometry">
      <rect>
@@ -291,34 +291,34 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuArchivo">
+   <widget class="QMenu" name="menu_file">
     <property name="title">
      <string>Archivo</string>
     </property>
-    <addaction name="actionExportar_como_Excel"/>
-    <addaction name="actionSalir"/>
+    <addaction name="action_export"/>
+    <addaction name="action_exit"/>
    </widget>
-   <widget class="QMenu" name="menuAcerca_de">
+   <widget class="QMenu" name="menu_help">
     <property name="title">
      <string>Ayuda</string>
     </property>
-    <addaction name="actionAcerca_de"/>
+    <addaction name="action_about"/>
    </widget>
-   <addaction name="menuArchivo"/>
-   <addaction name="menuAcerca_de"/>
+   <addaction name="menu_file"/>
+   <addaction name="menu_help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionExportar_como_Excel">
+  <action name="action_export">
    <property name="text">
     <string>Exportar como Excel</string>
    </property>
   </action>
-  <action name="actionSalir">
+  <action name="action_exit">
    <property name="text">
     <string>Salir</string>
    </property>
   </action>
-  <action name="actionAcerca_de">
+  <action name="action_about">
    <property name="text">
     <string>Acerca de</string>
    </property>
