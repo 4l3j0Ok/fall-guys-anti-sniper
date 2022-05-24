@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 
 
-def get_players(logger, index=None, player_target_string=PLAYER_TARGET_STRING, break_target_string=BREAK_TARGET_STRING):
+def get_players(index, logger, player_target_string=PLAYER_TARGET_STRING, break_target_string=BREAK_TARGET_STRING):
 	try:
 		players_list = []
 		finished = False
@@ -32,16 +32,17 @@ def get_players(logger, index=None, player_target_string=PLAYER_TARGET_STRING, b
 		return []
 
 
-def check_if_playing(logger):
+def find_new_game(last_index, logger):
 	with open(LOG_FILE_PATH, "r") as f:
 		lines = f.readlines()
-		for line in reversed(lines):
+		for index, line in enumerate(reversed(lines)):
 			if GAME_OVER_TARGET_STRING in line:
-				return False
+				return False, index
 			elif FOUND_GAME_TARGET_STRING in line:
-				logger.debug("Encontré una nueva partida.")
-				return True
-	return False
+				if index != last_index:
+					logger.debug("Encontré una nueva partida.")
+					return True, index
+	return False, index
 
 
 def get_blacklist():
@@ -67,15 +68,3 @@ def save_to_blacklist(name, logger):
 		logger.exception(ex)
 		return False
 
-
-def get_last_instance_index(logger):
-	try:
-		with open(LOG_FILE_PATH, "r") as f:
-			lines = f.readlines()
-			for index, line in enumerate(reversed(lines)):
-				if FOUND_GAME_TARGET_STRING in line:
-					return index
-			return None
-	except Exception as ex:
-		logger.exception(ex)
-		return None
