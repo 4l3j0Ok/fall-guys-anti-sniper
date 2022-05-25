@@ -3,6 +3,23 @@ import json
 from datetime import datetime
 
 
+def find_new_game(index_list, cached_line):
+	with open(LOG_FILE_PATH, "r") as f:
+		lines = f.readlines()
+		for index, line in enumerate((lines)):
+			if FOUND_GAME_TARGET_STRING in line:
+				if index not in index_list:
+					index_list.append(index)
+					return False, index_list, cached_line
+		for index, line in enumerate(reversed(lines[index_list[-1]:])):
+			if GAME_OVER_TARGET_STRING in line:
+					return False, index_list, cached_line
+			elif FOUND_GAME_TARGET_STRING in line:
+				if line != cached_line:
+					print("NUEVA PARTIDA")
+					return True, index_list, line
+		return False, index_list, cached_line
+
 def get_players(index, logger, player_target_string=PLAYER_TARGET_STRING, break_target_string=BREAK_TARGET_STRING):
 	try:
 		players_list = []
@@ -11,8 +28,7 @@ def get_players(index, logger, player_target_string=PLAYER_TARGET_STRING, break_
 		while True:
 			with open(LOG_FILE_PATH, "r") as f:
 				lines = f.readlines()
-				new_index = len(lines) - index - 1
-				for line in lines[new_index:]:
+				for line in lines[index:]:
 					if player_target_string in line:
 						player = line.replace(line.split("_")[0] + "_", "").replace(" (" + line.split(" (")[1], "")
 						if player in players_list:
@@ -30,19 +46,6 @@ def get_players(index, logger, player_target_string=PLAYER_TARGET_STRING, break_
 	except Exception as ex:
 		logger.exception(ex)
 		return []
-
-
-def find_new_game(last_index, logger):
-	with open(LOG_FILE_PATH, "r") as f:
-		lines = f.readlines()
-		for index, line in enumerate(reversed(lines)):
-			if GAME_OVER_TARGET_STRING in line:
-				return False, index
-			elif FOUND_GAME_TARGET_STRING in line:
-				if index != last_index:
-					logger.debug("Encontré una nueva partida.")
-					return True, index
-	return False, index
 
 
 def get_blacklist():
@@ -68,3 +71,28 @@ def save_to_blacklist(name, logger):
 		logger.exception(ex)
 		return False
 
+
+def get_previous_game_players():
+	try:
+		with open(PREV_GAME_LIST_PATH, "r") as f:
+			return json.load(f)
+	except:
+		with open(PREV_GAME_LIST_PATH, "w+") as f:
+			return []
+
+
+def save_previous_game_players(players_list, logger):
+	try:
+		if not players_list:
+			return True
+		previous_list = get_previous_game_players()
+		if len(previous_list) == PREV_GAMES_LIMIT:
+			previous_list.pop(-1)
+		logger.info("Guardando la lista anterior de jugadores...")
+		with open(PREV_GAME_LIST_PATH, "w") as f:
+			previous_list.append([player for player in players_list])
+			json.dump(previous_list, f)
+			return True
+	except Exception as ex:
+		logger.exception(ex)
+		return False
