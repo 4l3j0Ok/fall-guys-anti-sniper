@@ -16,14 +16,18 @@ class Daemon(QObject):
 
 	def run(self):
 		self.blacklist_signal.emit(utils.get_blacklist())
-		last_index = None
+		players_list = []
+		index_list = []
+		cached_line = ""
 		logger.info("Buscando nueva partida...")
 		while True:
-			new_game, index = utils.find_new_game(last_index, logger)
+			new_game, index_list, cached_line = utils.find_new_game(index_list, cached_line)
 			if new_game:
-				logger.info("Hay nueva partida, emito señal.")
-				self.players_list_signal.emit(utils.get_players(index, logger))
-				last_index = index
+				logger.info("Hay nueva partida, guardo lo previo y emito señal.")
+				result_save = utils.save_previous_game_players(players_list, logger)
+				logger.info("Result de save_previous_game_players: {}".format(result_save))
+				players_list = utils.get_players(index_list[-1], logger)
+				self.players_list_signal.emit(players_list)
 
 class HomeWindow(QMainWindow):
 	def __init__(self):
@@ -47,11 +51,10 @@ class HomeWindow(QMainWindow):
 	def fill_players_list(self, players_list):
 		self.clear_players_list()
 		logger.info("Llenando la lista con los nuevos jugadores.")
-		logger.debug(players_list)
 		for player in players_list:
 			self.current_game_players_list.addItem(player)
 
-	def clean_players_list(self):
+	def clear_players_list(self):
 		logger.info("Limpiando lista anterior de jugadores.")
 		self.current_game_players_list.clear()
 
