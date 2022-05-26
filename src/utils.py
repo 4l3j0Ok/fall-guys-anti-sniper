@@ -3,22 +3,35 @@ import json
 from datetime import datetime
 
 
-def find_new_game(index_list, cached_line):
+def find_new_game(index_list, cached_line, logger, playing=False):
 	with open(LOG_FILE_PATH, "r") as f:
 		lines = f.readlines()
-		for index, line in enumerate((lines)):
-			if FOUND_GAME_TARGET_STRING in line:
-				if index not in index_list:
-					index_list.append(index)
-					return False, index_list, cached_line
+		if not playing:
+			for index, line in enumerate(lines):
+				if POSSIBLE_GAME_TARGET_STRING in line:
+					if index not in index_list:
+						index_list.append(index)
+						logger.debug("Encontré el FOUND_GAME_TARGET_STRING")
+						logger.debug("Total de juegos encontrados hasta ahora: {}".format(len(index_list) - 1))
+						return False, index_list, cached_line, playing
 		for index, line in enumerate(reversed(lines[index_list[-1]:])):
-			if GAME_OVER_TARGET_STRING in line:
-					return False, index_list, cached_line
-			elif FOUND_GAME_TARGET_STRING in line:
-				if line != cached_line:
-					print("NUEVA PARTIDA")
-					return True, index_list, line
-		return False, index_list, cached_line
+			if playing:
+				if GAME_OVER_TARGET_STRING in line:
+					logger.info("Juego terminado")
+					return False, index_list, "", False
+			else:
+				if GAME_OVER_TARGET_STRING in line:
+					return False, index_list, "", False
+				if not cached_line:
+					if POSSIBLE_GAME_TARGET_STRING in line:
+						logger.info("POSIBLE PARTIDA ENCONTRADA!")
+						return False, index_list, line, False
+				else:
+					if FOUND_GAME_TARGET_STRING in line:
+						logger.info("PARTIDA ENCONTRADA!")
+						return True, index_list, "", True
+		return False, index_list, cached_line, playing
+
 
 def get_players(index, logger, player_target_string=PLAYER_TARGET_STRING, break_target_string=BREAK_TARGET_STRING):
 	try:
@@ -48,51 +61,31 @@ def get_players(index, logger, player_target_string=PLAYER_TARGET_STRING, break_
 		return []
 
 
-def get_blacklist():
+def get_data():
 	try:
-		with open(BLACKLIST_PATH, "r") as f:
+		with open(DATA_PATH, "r") as f:
 			return json.load(f)
 	except:
-		with open(BLACKLIST_PATH, "w+") as f:
-			return []
+		with open(DATA_PATH, "w+") as f:
+			return {}
 
 
-def save_to_blacklist(name, logger):
-	try:
-		blacklist = get_blacklist()
-		with open(BLACKLIST_PATH, "w") as f:
-			data = {}
-			data["name"] = name
-			data["saved_on"] = datetime.now().strftime(STRFTIME_FORMAT)
-			blacklist.append(data)
-			json.dump(blacklist, f)
-			return True
-	except Exception as ex:
-		logger.exception(ex)
-		return False
+def save_data(data):
+	with open(DATA_PATH, "w") as f:
+		json.dump(data, f)
 
 
-def get_previous_game_players():
-	try:
-		with open(PREV_GAME_LIST_PATH, "r") as f:
-			return json.load(f)
-	except:
-		with open(PREV_GAME_LIST_PATH, "w+") as f:
-			return []
+def save_to_blacklist(name):
+	data = get_data()
+	data.get("blacklist", []).append(name)
+	save_data(data)
 
 
 def save_previous_game_players(players_list, logger):
-	try:
-		if not players_list:
-			return True
-		previous_list = get_previous_game_players()
-		if len(previous_list) == PREV_GAMES_LIMIT:
-			previous_list.pop(-1)
-		logger.info("Guardando la lista anterior de jugadores...")
-		with open(PREV_GAME_LIST_PATH, "w") as f:
-			previous_list.append([player for player in players_list])
-			json.dump(previous_list, f)
-			return True
-	except Exception as ex:
-		logger.exception(ex)
-		return False
+	data = get_data()
+	data["prev_games_players"] = data.get("prev_games_players", [])
+	if len(data["prev_games_players"]) == PREV_GAMES_LIMIT:
+		data["prev_games_players"].pop(-1)
+	logger.info("Guardando la lista anterior de jugadores...")
+	data["prev_games_players"].append([player for player in players_list])
+	save_data(data)

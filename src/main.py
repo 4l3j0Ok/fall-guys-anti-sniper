@@ -15,17 +15,17 @@ class Daemon(QObject):
 	players_list_signal = pyqtSignal(list)
 
 	def run(self):
-		self.blacklist_signal.emit(utils.get_blacklist())
+		self.blacklist_signal.emit(utils.get_data().get("blacklist", []))
 		players_list = []
-		index_list = []
+		index_list = [0]
 		cached_line = ""
+		playing = False
 		logger.info("Buscando nueva partida...")
 		while True:
-			new_game, index_list, cached_line = utils.find_new_game(index_list, cached_line)
-			if new_game:
+			game_founded, index_list, cached_line, playing = utils.find_new_game(index_list, cached_line, logger, playing=playing)
+			if game_founded:
 				logger.info("Hay nueva partida, guardo lo previo y emito señal.")
-				result_save = utils.save_previous_game_players(players_list, logger)
-				logger.info("Result de save_previous_game_players: {}".format(result_save))
+				utils.save_previous_game_players(players_list, logger)
 				players_list = utils.get_players(index_list[-1], logger)
 				self.players_list_signal.emit(players_list)
 
