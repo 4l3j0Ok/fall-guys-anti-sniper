@@ -1,5 +1,4 @@
 *.pyc
 __pycache__
 *.log
-log_lines.txt
 data.json
