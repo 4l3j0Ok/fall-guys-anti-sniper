@@ -177,7 +177,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="edit_blacklist_button">
+    <widget class="QPushButton" name="clear_blacklist_button">
      <property name="geometry">
       <rect>
        <x>10</x>
