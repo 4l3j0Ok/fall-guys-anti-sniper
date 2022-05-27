@@ -36,8 +36,8 @@ def find_new_game(index_list, cached_line, playing=False):
 		return False, index_list, cached_line, playing
 
 def get_username():
-	username = None
 	with open(LOG_FILE_PATH, "r") as f:
+		username = None
 		lines = f.readlines()
 		for line in lines:
 			if USERNAME_TARGET_STRING in line:
@@ -48,7 +48,8 @@ def get_username():
 				logger.debug(username)
 				data["username"] = username
 				save_data(data)
-	return username
+				break
+		return username
 
 
 def get_players(index, username):
