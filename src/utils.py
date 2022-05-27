@@ -35,6 +35,7 @@ def find_new_game(index_list, cached_line, playing=False):
 						return True, index_list, "", True
 		return False, index_list, cached_line, playing
 
+
 def get_username():
 	with open(LOG_FILE_PATH, "r") as f:
 		username = None
@@ -147,7 +148,18 @@ def save_data(data):
 		json.dump(data, f)
 
 
-def save_to_blacklist(name):
+def save_to_blacklist(player):
 	data = get_data()
-	data.get("blacklist", []).append(name)
+	data.get("blacklist", []).append(player)
+	save_data(data)
+
+
+def clear_blacklist(player=None):
+	data = get_data()
+	if data.get("blacklist"):
+		if not player:
+			del(data["blacklist"])
+		else:
+			if player in data["blacklist"]:
+				data["blacklist"].remove(player)
 	save_data(data)

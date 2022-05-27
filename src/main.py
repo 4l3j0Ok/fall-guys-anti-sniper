@@ -52,6 +52,30 @@ class HomeWindow(QMainWindow):
 	def ui_basic_config(self):
 		self.setWindowIcon(QIcon(config.ICON_PATH))
 		self.action_about.triggered.connect(self.show_about)
+		self.clear_blacklist_button.clicked.connect(self.clear_blacklist)
+
+	def show_about(self):
+		msg_box = QMessageBox()
+		msg_box.setWindowTitle("Acerca de")
+		msg_box.setIcon(QMessageBox.Question)
+		msg_box.setDefaultButton(QMessageBox.Close)
+		msg_box.setText(config.ABOUT_STRING)
+		msg_box.setFixedSize(500, 500)
+		msg_box.exec_()
+
+	def clear_blacklist(self):
+		msg_box = QMessageBox()
+		msg_box.setWindowTitle("Limpiar lista negra.")
+		msg_box.setIcon(QMessageBox.Warning)
+		msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+		msg_box.setText("¿Estás seguro de querer limpiar la lista negra?")
+		msg_box.setInformativeText("Esta acción no se puede deshacer.")
+		msg_box.setFixedSize(500, 500)
+		result = msg_box.exec_()
+		if result == QMessageBox.Yes:
+			logger.info("Limpiando la blacklist.")
+			self.blacklist_list.clear()
+			utils.clear_blacklist()
 
 
 	def run_daemon(self):
@@ -99,16 +123,6 @@ class HomeWindow(QMainWindow):
 		logger.info("Limpiando lista anterior de jugadores.")
 		self.current_game_players_list.clear()
 		self.suspects_list.clear()
-
-
-	def show_about(self):
-		msg_box = QMessageBox()
-		msg_box.setWindowTitle("Acerca de")
-		msg_box.setIcon(QMessageBox.Question)
-		msg_box.setDefaultButton(QMessageBox.Close)
-		msg_box.setText(config.ABOUT_STRING)
-		msg_box.setFixedSize(500, 500)
-		msg_box.exec_()
 
 
 if __name__ == "__main__":
