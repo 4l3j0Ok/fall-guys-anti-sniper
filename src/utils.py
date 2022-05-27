@@ -7,32 +7,36 @@ from logger import logger
 #TODO add manually
 
 def find_new_game(index_list, cached_line, playing=False):
-	with open(LOG_FILE_PATH, "r") as f:
-		lines = f.readlines()
-		if not playing:
-			for index, line in enumerate(lines):
-				if POSSIBLE_GAME_TARGET_STRING in line:
-					if index not in index_list:
-						index_list.append(index)
-						logger.debug("Encontré el FOUND_GAME_TARGET_STRING")
-						logger.debug("Total de juegos encontrados hasta ahora: {}".format(len(index_list) - 1))
-						return False, index_list, cached_line, playing
-		for index, line in enumerate(reversed(lines[index_list[-1]:])):
-			if playing:
-				if GAME_OVER_TARGET_STRING in line:
-					logger.info("Juego terminado.")
-					return False, index_list, "", False
-			else:
-				if GAME_OVER_TARGET_STRING in line:
-					return False, index_list, "", False
-				if not cached_line:
+	try:
+		with open(LOG_FILE_PATH, "r") as f:
+			lines = f.readlines()
+			if not playing:
+				for index, line in enumerate(lines):
 					if POSSIBLE_GAME_TARGET_STRING in line:
-						logger.info("POSIBLE PARTIDA ENCONTRADA!")
-						return False, index_list, line, False
+						if index not in index_list:
+							index_list.append(index)
+							logger.debug("Encontré el FOUND_GAME_TARGET_STRING")
+							logger.debug("Total de juegos encontrados hasta ahora: {}".format(len(index_list) - 1))
+							return False, index_list, cached_line, playing
+			for index, line in enumerate(reversed(lines[index_list[-1]:])):
+				if playing:
+					if GAME_OVER_TARGET_STRING in line:
+						logger.info("Juego terminado.")
+						return False, index_list, "", False
 				else:
-					if FOUND_GAME_TARGET_STRING in line:
-						logger.info("PARTIDA ENCONTRADA!")
-						return True, index_list, "", True
+					if GAME_OVER_TARGET_STRING in line:
+						return False, index_list, "", False
+					if not cached_line:
+						if POSSIBLE_GAME_TARGET_STRING in line:
+							logger.info("POSIBLE PARTIDA ENCONTRADA!")
+							return False, index_list, line, False
+					else:
+						if FOUND_GAME_TARGET_STRING in line:
+							logger.info("PARTIDA ENCONTRADA!")
+							return True, index_list, "", True
+			return False, index_list, cached_line, playing
+	except Exception as ex:
+		logger.exception(ex)
 		return False, index_list, cached_line, playing
 
 
@@ -107,10 +111,11 @@ def update_prev_games_players(index, username):
 	logger.info("Terminé de llenar la lista de jugadores previos.")
 
 
-def get_snipers(players_list, blacklist):
+def get_snipers(players_list):
 	try:
 		logger.info("Buscando snipers...")
 		data = get_data()
+		blacklist = data.get("blacklist", [])
 		snipers_data = {}
 		snipers_data["suspects"] = []
 		snipers_data["snipers"] = []
@@ -119,14 +124,16 @@ def get_snipers(players_list, blacklist):
 		for player in players_list:
 			if player == username:
 				continue
+			if player in blacklist:
+				logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
+				snipers_data["snipers"].append(player)
+				continue
 			for prev_players in prev_games:
 				if player in prev_players:
 					if player not in snipers_data["suspects"]:
 						logger.info("ENCONTRÉ UN POSIBLE SNIPER: {}".format(player))
 						snipers_data["suspects"].append(player)
-			if player in blacklist:
-				logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
-				snipers_data["snipers"].append(player)
+						continue
 		logger.debug(snipers_data)
 		return snipers_data
 	except Exception as ex:
@@ -150,7 +157,8 @@ def save_data(data):
 
 def save_to_blacklist(player):
 	data = get_data()
-	data.get("blacklist", []).append(player)
+	data["blacklist"] = data.get("blacklist", [])
+	data["blacklist"].append(player)
 	save_data(data)
 
 
@@ -158,8 +166,10 @@ def clear_blacklist(player=None):
 	data = get_data()
 	if data.get("blacklist"):
 		if not player:
+			logger.warning("Voy a limpiar la blacklist entera.")
 			del(data["blacklist"])
 		else:
+			logger.warning("Voy a sacar a '{}' de la blacklist.".format(player))
 			if player in data["blacklist"]:
 				data["blacklist"].remove(player)
-	save_data(data)
+		save_data(data)

@@ -35,7 +35,7 @@ class Daemon(QObject):
 				utils.update_prev_games_players(index_list[-1], username)
 				players_list = utils.get_players(index_list[-1], username)
 				self.players_list_signal.emit(players_list)
-				snipers = utils.get_snipers(players_list, blacklist)
+				snipers = utils.get_snipers(players_list)
 				if snipers:
 					self.snipers_signal.emit(snipers)
 
@@ -55,6 +55,8 @@ class HomeWindow(QMainWindow):
 		self.action_about.triggered.connect(self.show_about)
 		self.clear_blacklist_button.clicked.connect(self.clear_blacklist)
 		self.remove_player_blacklist_button.clicked.connect(self.remove_player_blacklist)
+		self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist("current"))
+		self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist("suspects"))
 
 	def show_about(self):
 		msg_box = QMessageBox()
@@ -87,6 +89,10 @@ class HomeWindow(QMainWindow):
 			logger.info("Limpiando la blacklist.")
 			self.blacklist_list.clear()
 			utils.clear_blacklist()
+		players_list = []
+		for i in range(self.current_game_players_list.count() - 1):
+			players_list.append(self.current_game_players_list.item(i).text())
+		self.fill_snipers(utils.get_snipers(players_list))
 
 
 	def remove_player_blacklist(self):
@@ -117,6 +123,36 @@ class HomeWindow(QMainWindow):
 			logger.info("Limpiando la blacklist.")
 			self.blacklist_list.takeItem(player_index)
 			utils.clear_blacklist(player=player_name)
+		players_list = []
+		for i in range(self.current_game_players_list.count() - 1):
+			players_list.append(self.current_game_players_list.item(i).text())
+		self.fill_snipers(utils.get_snipers(players_list))
+
+
+	def add_to_blacklist(self, selected_list):
+		err_msg_box = QMessageBox()
+		err_msg_box.setWindowTitle("Agregar a la lista negra")
+		err_msg_box.setWindowIcon(self.windowIcon)
+		err_msg_box.setIcon(QMessageBox.Information)
+		err_msg_box.setText("Seleccione un jugador a agregar.")
+		err_msg_box.setDefaultButton(QMessageBox.Close)
+		if selected_list == "current":
+			if not self.current_game_players_list.currentItem():
+				err_msg_box.exec_()
+				return
+			player_name = self.current_game_players_list.currentItem().text()
+		elif selected_list == "suspects":
+			if not self.suspects_list.currentItem():
+				err_msg_box.exec_()
+				return
+			player_index = self.suspects_list.currentRow()
+			player_name = self.suspects_list.currentItem().text()
+			self.suspects_list.takeItem(player_index)
+		current_blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
+		if player_name not in current_blacklist:
+			self.snipers_list.addItem(player_name)
+			self.blacklist_list.addItem(player_name)
+			utils.save_to_blacklist(player_name)
 
 
 	def run_daemon(self):
@@ -128,12 +164,12 @@ class HomeWindow(QMainWindow):
 		# Connect signals and slots.
 		self.thread.started.connect(self.daemon.run)
 		self.daemon.blacklist_signal.connect(self.fill_blacklist)
-		self.daemon.players_list_signal.connect(self.fill_players_list)
+		self.daemon.players_list_signal.connect(self.fill_players)
 		self.daemon.snipers_signal.connect(self.fill_snipers)
 		self.thread.start()
 
 
-	def fill_players_list(self, players_list):
+	def fill_players(self, players_list):
 		self.clear_players_lists()
 		logger.info("Llenando la lista con los nuevos jugadores.")
 		for player in players_list:
@@ -148,6 +184,7 @@ class HomeWindow(QMainWindow):
 
 
 	def fill_snipers(self, data):
+		self.clear_snipers()
 		logger.info("Llenando la lista de snipers.")
 		snipers = data.get("snipers", [])
 		suspects = data.get("suspects", [])
@@ -158,6 +195,13 @@ class HomeWindow(QMainWindow):
 		logger.debug("Posibles snipers: {}".format(suspects))
 		for suspect in suspects:
 			self.suspects_list.addItem(suspect)
+
+
+	def clear_snipers(self):
+		logger.info("Limpiando la lista de snipers antigua.")
+		self.snipers_list.clear()
+		logger.info("Limpiando la lista de posibles snipers antigua.")
+		self.suspects_list.clear()
 
 
 	def clear_players_lists(self):
