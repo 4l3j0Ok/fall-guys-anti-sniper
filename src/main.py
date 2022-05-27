@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
-from PyQt5.QtCore import QThread, QObject, pyqtSignal
+from PyQt5.QtCore import QThread, QObject, pyqtSignal, Qt
 import utils
 import config
 from logger import logger
@@ -55,13 +55,13 @@ class HomeWindow(QMainWindow):
 		self.action_about.triggered.connect(self.show_about)
 		self.clear_blacklist_button.clicked.connect(self.clear_blacklist)
 		self.remove_player_blacklist_button.clicked.connect(self.remove_player_blacklist)
-		self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist("current"))
-		self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist("suspects"))
+		self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist_from_list(selected_list="current"))
+		self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist_from_list(selected_list="suspects"))
+		self.add_manually_button.clicked.connect(self.add_player_maually)
 
 	def show_about(self):
-		msg_box = QMessageBox()
+		msg_box = QMessageBox(self)
 		msg_box.setWindowTitle("Acerca de")
-		msg_box.setWindowIcon(self.windowIcon)
 		msg_box.setIcon(QMessageBox.Question)
 		msg_box.setDefaultButton(QMessageBox.Close)
 		msg_box.setText(config.ABOUT_STRING)
@@ -69,9 +69,8 @@ class HomeWindow(QMainWindow):
 
 
 	def clear_blacklist(self):
-		msg_box = QMessageBox()
+		msg_box = QMessageBox(self)
 		msg_box.setWindowTitle("Limpiar lista negra")
-		msg_box.setWindowIcon(self.windowIcon)
 		if not self.blacklist_list:
 			msg_box.setIcon(QMessageBox.Information)
 			msg_box.setText("La lista negra está vacía.")
@@ -79,7 +78,6 @@ class HomeWindow(QMainWindow):
 			msg_box.exec_()
 			return
 		msg_box.setIcon(QMessageBox.Warning)
-		msg_box.setWindowIcon(self.windowIcon)
 		msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
 		msg_box.setText("¿Estás seguro de querer limpiar la lista negra?")
 		msg_box.setInformativeText("Esta acción no se puede deshacer.")
@@ -96,9 +94,8 @@ class HomeWindow(QMainWindow):
 
 
 	def remove_player_blacklist(self):
-		msg_box = QMessageBox()
+		msg_box = QMessageBox(self)
 		msg_box.setWindowTitle("Eliminar jugador de la lista negra")
-		msg_box.setWindowIcon(self.windowIcon)
 		if not self.blacklist_list:
 			msg_box.setIcon(QMessageBox.Information)
 			msg_box.setText("La lista negra está vacía.")
@@ -129,30 +126,44 @@ class HomeWindow(QMainWindow):
 		self.fill_snipers(utils.get_snipers(players_list))
 
 
-	def add_to_blacklist(self, selected_list):
-		err_msg_box = QMessageBox()
+
+	def add_to_blacklist(self, selected_list=None, player_name=None):
+		err_msg_box = QMessageBox(self)
 		err_msg_box.setWindowTitle("Agregar a la lista negra")
-		err_msg_box.setWindowIcon(self.windowIcon)
 		err_msg_box.setIcon(QMessageBox.Information)
 		err_msg_box.setText("Seleccione un jugador a agregar.")
 		err_msg_box.setDefaultButton(QMessageBox.Close)
-		if selected_list == "current":
-			if not self.current_game_players_list.currentItem():
-				err_msg_box.exec_()
-				return
-			player_name = self.current_game_players_list.currentItem().text()
-		elif selected_list == "suspects":
-			if not self.suspects_list.currentItem():
-				err_msg_box.exec_()
-				return
-			player_index = self.suspects_list.currentRow()
-			player_name = self.suspects_list.currentItem().text()
-			self.suspects_list.takeItem(player_index)
+		if selected_list:
+			if selected_list == "current":
+				if not self.current_game_players_list.currentItem():
+					err_msg_box.exec_()
+					return
+				player_name = self.current_game_players_list.currentItem().text()
+			elif selected_list == "suspects":
+				if not self.suspects_list.currentItem():
+					err_msg_box.exec_()
+					return
+				player_index = self.suspects_list.currentRow()
+				player_name = self.suspects_list.currentItem().text()
+				self.suspects_list.takeItem(player_index)
+			self.snipers_list.addItem(player_name)
 		current_blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
 		if player_name not in current_blacklist:
-			self.snipers_list.addItem(player_name)
 			self.blacklist_list.addItem(player_name)
 			utils.save_to_blacklist(player_name)
+
+
+	def add_player_maually(self):
+		msg_box = QMessageBox(self)
+		msg_box.setWindowTitle("Agregar a la lista negra")
+		player, ok = QInputDialog.getText(
+			msg_box,
+			"Agregar sniper",
+			"Ingrese el nombre del sniper",
+			QLineEdit.Normal
+		)
+		if ok and player:
+			self.add_to_blacklist(player_name=player)
 
 
 	def run_daemon(self):
