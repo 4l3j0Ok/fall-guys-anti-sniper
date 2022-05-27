@@ -204,7 +204,7 @@
       <string>Limpiar</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="delete_blacklist_button">
+    <widget class="QPushButton" name="remove_player_blacklist_button">
      <property name="geometry">
       <rect>
        <x>90</x>
@@ -228,7 +228,7 @@
       <cursorShape>PointingHandCursor</cursorShape>
      </property>
      <property name="text">
-      <string>Borrar</string>
+      <string>Eliminar</string>
      </property>
     </widget>
    </widget>
