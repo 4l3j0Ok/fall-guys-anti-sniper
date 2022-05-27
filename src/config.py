@@ -15,8 +15,4 @@ PLAYER_TARGET_STRING = "[CameraDirector] Adding Spectator target "
 BREAK_TARGET_STRING = "[GameStateMachine] Replacing FGClient.StateGameLoading with FGClient.StateGameInProgress"
 GAME_OVER_TARGET_STRING = "[FG_UnityInternetNetworkManager] FG_NetworkManager shutdown completed"
 STRFTIME_FORMAT = "%d/%m/%Y - %H:%M:%S"
-ABOUT_STRING = """
-                Desarrollado por: Alejoide. \n
-                Desarrollado con: Python, Qt, Redragon Aryaman.\n
-                PD: Aitorek Bobo.
-                """
+ABOUT_STRING = "Desarrollado por: Alejoide.\nDesarrollado con: Python, Qt, Redragon Aryaman.\n\nPD: Aitorek Bobo."
