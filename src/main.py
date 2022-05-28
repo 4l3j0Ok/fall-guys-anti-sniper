@@ -7,6 +7,7 @@ import qdarkstyle
 import utils
 import config
 from ui import Ui_MainWindow
+import static.resources
 from logger import logger
 
 
@@ -37,7 +38,6 @@ class Daemon(QObject):
 				snipers = utils.get_snipers(players_list)
 				if snipers:
 					self.snipers_signal.emit(snipers)
-					utils.notify_sniper()
 
 
 class HomeWindow(QMainWindow, Ui_MainWindow):
@@ -50,7 +50,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 
 	def ui_basic_config(self):
-		self.windowIcon = QIcon(config.ICON_PATH)
+		self.windowIcon = QIcon(":/static/icon.png")
 		self.setWindowIcon(self.windowIcon)
 		self.action_about.triggered.connect(self.show_about)
 		self.action_export.triggered.connect(self.export)
@@ -197,7 +197,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		self.thread.started.connect(self.daemon.run)
 		self.daemon.blacklist_signal.connect(self.fill_blacklist)
 		self.daemon.players_list_signal.connect(self.fill_players)
-		self.daemon.snipers_signal.connect(self.fill_snipers)
+		self.daemon.snipers_signal.connect(lambda: self.fill_snipers(first=True))
 		self.thread.start()
 
 
@@ -215,7 +215,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.blacklist_list.addItem(item)
 
 
-	def fill_snipers(self, data=None):
+	def fill_snipers(self, data=None, first=False):
 		if not data:
 			players_list = [self.current_game_players_list.item(i).text() for i in range(self.current_game_players_list.count())]
 			data = utils.get_snipers(players_list)
@@ -230,6 +230,9 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		logger.debug("Posibles snipers: {}".format(suspects))
 		for suspect in suspects:
 			self.suspects_list.addItem(suspect)
+		if first:
+			if data.get("snipers"):
+				utils.notify_sniper()
 
 
 	def clear_snipers(self):
@@ -246,7 +249,10 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 
 if __name__ == "__main__":
-	app = QApplication(sys.argv)
-	app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-	home = HomeWindow()
-	app.exec_()
+	try:
+		app = QApplication(sys.argv)
+		app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+		home = HomeWindow()
+		app.exec_()
+	except Exception as ex:
+		logger.exception(ex)

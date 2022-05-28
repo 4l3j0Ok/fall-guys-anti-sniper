@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/static" >
+    <file>icon.png</file>
+    <file>icon.png</file>
+  </qresource>
+</RCC>

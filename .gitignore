@@ -2,3 +2,5 @@
 __pycache__
 *.log
 data.json
+build
+dist
