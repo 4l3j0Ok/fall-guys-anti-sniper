@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='Fall Guys Anti Sniper',
+    name='FGAntiSniper',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
