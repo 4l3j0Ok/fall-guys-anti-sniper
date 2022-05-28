@@ -3,13 +3,12 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
-from PyQt5.QtCore import QThread, QObject, pyqtSignal, Qt
+from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal
+import qdarkstyle
 import utils
 import config
 from logger import logger
 
-
-#TODO Send windows notification if sniper detected https://www.youtube.com/watch?v=p1w-FZclhXs
 
 class Daemon(QObject):
 	blacklist_signal = pyqtSignal(list)
@@ -38,6 +37,7 @@ class Daemon(QObject):
 				snipers = utils.get_snipers(players_list)
 				if snipers:
 					self.snipers_signal.emit(snipers)
+					utils.notify_sniper()
 
 
 class HomeWindow(QMainWindow):
@@ -53,11 +53,14 @@ class HomeWindow(QMainWindow):
 		self.windowIcon = QIcon(config.ICON_PATH)
 		self.setWindowIcon(self.windowIcon)
 		self.action_about.triggered.connect(self.show_about)
+		self.action_export.triggered.connect(self.export)
+		self.action_exit.triggered.connect(QCoreApplication.instance().quit)
 		self.clear_blacklist_button.clicked.connect(self.clear_blacklist)
 		self.remove_player_blacklist_button.clicked.connect(self.remove_player_blacklist)
-		self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist_from_list(selected_list="current"))
-		self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist_from_list(selected_list="suspects"))
+		self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="current"))
+		self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="suspects"))
 		self.add_manually_button.clicked.connect(self.add_player_maually)
+
 
 	def show_about(self):
 		msg_box = QMessageBox(self)
@@ -66,6 +69,22 @@ class HomeWindow(QMainWindow):
 		msg_box.setDefaultButton(QMessageBox.Close)
 		msg_box.setText(config.ABOUT_STRING)
 		msg_box.exec_()
+
+
+	def export(self):
+		blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
+		players = [self.current_game_players_list.item(i).text() for i in range(self.current_game_players_list.count())]
+		suspects = [self.suspects_list.item(i).text() for i in range(self.suspects_list.count())]
+		snipers =  [self.snipers_list.item(i).text() for i in range(self.snipers_list.count())]
+		path = utils.export_as_csv(blacklist, players, suspects, snipers)
+		msg_box = QMessageBox(self)
+		msg_box.setWindowTitle("Acerca de")
+		msg_box.setIcon(QMessageBox.Question)
+		msg_box.setDefaultButton(QMessageBox.Close)
+		msg_box.setText("Archivo exportado!")
+		msg_box.setInformativeText("Ubicación: {}".format(path))
+		msg_box.exec_()
+
 
 
 	def clear_blacklist(self):
@@ -79,6 +98,10 @@ class HomeWindow(QMainWindow):
 			return
 		msg_box.setIcon(QMessageBox.Warning)
 		msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+		buttonY = msg_box.button(QMessageBox.Yes)
+		buttonY.setText("Limpiar")
+		buttonN = msg_box.button(QMessageBox.No)
+		buttonN.setText('Cancelar')
 		msg_box.setText("¿Estás seguro de querer limpiar la lista negra?")
 		msg_box.setInformativeText("Esta acción no se puede deshacer.")
 		msg_box.setFixedSize(500, 500)
@@ -87,10 +110,7 @@ class HomeWindow(QMainWindow):
 			logger.info("Limpiando la blacklist.")
 			self.blacklist_list.clear()
 			utils.clear_blacklist()
-		players_list = []
-		for i in range(self.current_game_players_list.count() - 1):
-			players_list.append(self.current_game_players_list.item(i).text())
-		self.fill_snipers(utils.get_snipers(players_list))
+		self.fill_snipers()
 
 
 	def remove_player_blacklist(self):
@@ -112,6 +132,10 @@ class HomeWindow(QMainWindow):
 		player_name = self.blacklist_list.currentItem().text()
 		msg_box.setIcon(QMessageBox.Warning)
 		msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+		buttonY = msg_box.button(QMessageBox.Yes)
+		buttonY.setText("Limpiar")
+		buttonN = msg_box.button(QMessageBox.No)
+		buttonN.setText('Cancelar')
 		msg_box.setText("¿Estás seguro de que quieres eliminar a '{}' de la lista negra?".format(player_name))
 		msg_box.setInformativeText("Esta acción no se puede deshacer.")
 		msg_box.setFixedSize(500, 500)
@@ -120,10 +144,7 @@ class HomeWindow(QMainWindow):
 			logger.info("Limpiando la blacklist.")
 			self.blacklist_list.takeItem(player_index)
 			utils.clear_blacklist(player=player_name)
-		players_list = []
-		for i in range(self.current_game_players_list.count() - 1):
-			players_list.append(self.current_game_players_list.item(i).text())
-		self.fill_snipers(utils.get_snipers(players_list))
+		self.fill_snipers()
 
 
 
@@ -146,11 +167,11 @@ class HomeWindow(QMainWindow):
 				player_index = self.suspects_list.currentRow()
 				player_name = self.suspects_list.currentItem().text()
 				self.suspects_list.takeItem(player_index)
-			self.snipers_list.addItem(player_name)
 		current_blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
 		if player_name not in current_blacklist:
 			self.blacklist_list.addItem(player_name)
 			utils.save_to_blacklist(player_name)
+			self.fill_snipers()
 
 
 	def add_player_maually(self):
@@ -194,7 +215,10 @@ class HomeWindow(QMainWindow):
 			self.blacklist_list.addItem(item)
 
 
-	def fill_snipers(self, data):
+	def fill_snipers(self, data=None):
+		if not data:
+			players_list = [self.current_game_players_list.item(i).text() for i in range(self.current_game_players_list.count())]
+			data = utils.get_snipers(players_list)
 		self.clear_snipers()
 		logger.info("Llenando la lista de snipers.")
 		snipers = data.get("snipers", [])
@@ -223,5 +247,6 @@ class HomeWindow(QMainWindow):
 
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
+	app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 	home = HomeWindow()
 	app.exec_()

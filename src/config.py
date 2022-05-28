@@ -2,6 +2,7 @@
 import os
 
 
+APP_NAME = "Fall Guys Anti Sniper"
 USER = os.getlogin()
 UI_PATH = ".\\src\\ui\\home.ui"
 ICON_PATH = ".\\src\\ui\\icon.png"

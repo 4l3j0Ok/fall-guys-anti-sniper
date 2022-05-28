@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-from config import *
+import os
 import json
+import csv
+from itertools import zip_longest
 from datetime import datetime
+from notifypy import Notify
+from config import *
 from logger import logger
 
-#TODO add manually
 
 def find_new_game(index_list, cached_line, playing=False):
 	try:
@@ -173,3 +176,24 @@ def clear_blacklist(player=None):
 			if player in data["blacklist"]:
 				data["blacklist"].remove(player)
 		save_data(data)
+
+
+def notify_sniper():
+	notification = Notify()
+	notification.application_name = "Fall Guys Sniper Tracker"
+	notification.title = "Snipers detectados"
+	notification.message = "Se han encontrado snipers en la partida"
+	notification.icon = ICON_PATH
+	notification.send()
+
+
+def export_as_csv(blacklist, players, suspects, snipers):
+	filepath = ".\\fall_guys_anti_sniper_" + datetime.today().strftime("%d-%m-%Y_%H.%M.%S") + ".csv"
+	header = ["Lista negra", "Jugadores en la partida", "Posibles snipers", "Snipers"]
+	lists = [blacklist, players, suspects, snipers]
+	with open(filepath, "w", newline="") as f:
+		writer = csv.writer(f)
+		writer.writerow(header)
+		for values in zip_longest(*lists):
+			writer.writerow(values)
+	return filepath
