@@ -1,0 +1,147 @@
+Metadata-Version: 2.1
+Name: py2exe
+Version: 0.11.1.0
+Summary: Build standalone executables for Windows
+Home-page: http://www.py2exe.org/
+Author: Thomas Heller
+Author-email: theller@ctypes.org
+Maintainer: Alberto Sottile
+Maintainer-email: alby128@gmail.com
+License: MIT/X11
+Platform: Windows
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: License :: OSI Approved :: MIT License
+Classifier: License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: C
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: System :: Software Distribution
+Classifier: Topic :: Utilities
+Requires-Python: >=3.7, <3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+Requires-Dist: cachetools
+Requires-Dist: pefile
+
+py2exe for Python 3
+===================
+
+`py2exe` is a distutils extension which allows to build standalone
+Windows executable programs (32-bit and 64-bit) from Python scripts.
+Python versions included in the [official development cycle](https://devguide.python.org/#status-of-python-branches)
+are supported. `py2exe` can build console executables and windows
+(GUI) executables.
+
+Development of `py2exe` is hosted here:
+https://github.com/py2exe/py2exe.
+
+
+Changes
+----------------------------
+
+Detailed changelog is published on [GitHub](https://github.com/py2exe/py2exe/releases/).
+
+Version 0.11.1.0:
+- Drop support for Python 3.6
+- Include package metadata in the bundle archive (to be used by e.g. `importlib.metadata`)
+- Fixed a bug that prevented to use the `optimize` option when `six` was in the bundle
+- Fixed a bug that ignored the `optimize` flag for some packages
+
+Version 0.11.0.1:
+- Show again relative paths in Tracebacks that happen from the frozen application
+  (#12 and #114)
+
+Version 0.11.0.0:
+- New module finder `mf310` written as a wrapper around CPython `modulefinder.ModuleFinder`
+- Add support for Python 3.10
+- New hook for `scipy`
+- `zipextimporter` can now be built as a standalone extension via its own setup script
+
+Version 0.10.4.1:
+- `ModuleFinder`: add support for the `pkg_resources.extern.VendorImporter` loader
+- New hooks for `pkg_resources` and `infi`
+
+Version 0.10.4.0:
+- `zipextimporter` supports external modules that use multi-phase initialization (PEP 489)
+- New hook for `selenium`
+- `dllfinder` provides a new method to add data files in the zip archive
+
+Version 0.10.3.1:
+- New hook for `pycryptodomex`
+- `ModuleFinder`: respect excludes list in `import_package`
+- Updated hook for `matplotlib` >= 3.4.0
+
+Version 0.10.3.0:
+- New hook for supporting `matplotlib` 3.2 and higher.
+- Fix for including implicit namespace packages as per PEP420.
+
+Version 0.10.2.1:
+- Patch `MyLoadLibrary` to support `ssl` with `bundle_files=0`.
+
+Version 0.10.2.0:
+- New module finder with support for implicit namespace packages (PEP 420).
+- `DLLFinder` automatically excludes VC++ redist and Windows CRT DLLs from bundles.
+- Several fixes for bundling software with `bundle_files<=2` (only the standard library
+  is supported, other dependencies may or may not work).
+- New hooks for `pycryptodome` and `shapely`.
+
+Version 0.10.1.0:
+- Add support for Python 3.9.
+- Drop support for Python 3.5.
+- New hooks for `urllib3` and `pandas`.
+
+Version 0.10.0.2 (from versions 0.9.x):
+- Introduce compatibility with Python 3.5, 3.6, 3.7, and 3.8.
+- Drop compatibility with Python 3.4 and earlier.
+- New or updated hooks for `certifi`, `numpy`, `tkinter`, `socket`,
+`ssl`, and `six`.
+- `build_exe`: the `zipfile=None` option has been removed.
+- `runtime`: the Python interpreter DLL is no longer altered before
+being inserted in the executable bundle.
+- Several bugfixes, better error messages.
+
+
+Installation
+------------
+
+```pip install py2exe```
+
+
+Using a setup-script
+--------------------
+
+Documentation about the setup-script and other usage tips are in the
+wiki pages at http://www.py2exe.org.
+
+
+Using the builder
+-----------------
+
+The `build_exe` CLI is not actively supported at the moment. Users are
+encouraged to create their own `setup.py` files. Documentation
+on how to use the CLI can be found [here](https://github.com/py2exe/py2exe/blob/master/README_ORIGINAL.rst).
+
+
+Known issues
+------------
+
+- Building isapi extensions is not supported.
+- High-level methods or hooks to embed Qt plugins in the bundle (needed by
+PySide2/PyQt5) are missing.
+
+
+Credits
+--------
+
+Further informations about the original development of `py2exe` and other
+usage guidelines can be found [in the original README](https://github.com/py2exe/py2exe/blob/master/README_ORIGINAL.rst).
+

@@ -1,0 +1,108 @@
+Metadata-Version: 2.1
+Name: cx-Freeze
+Version: 6.10
+Summary: Create standalone executables from Python scripts
+Home-page: https://marcelotduarte.github.io/cx_Freeze
+Author: Anthony Tuininga
+Author-email: anthony.tuininga@gmail.com
+Maintainer: Marcelo Duarte
+Maintainer-email: marcelotduarte@users.noreply.github.com
+License: Python Software Foundation License
+Project-URL: Bug Tracker, https://github.com/marcelotduarte/cx_Freeze/issues
+Project-URL: CI: GitHub Workflows, https://github.com/marcelotduarte/cx_Freeze/actions?query=branch:main
+Project-URL: Source Code, https://github.com/marcelotduarte/cx_Freeze
+Keywords: cx-freeze cxfreeze cx_Freeze freeze python
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Python Software Foundation License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: C
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: System :: Software Distribution
+Classifier: Topic :: Utilities
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: doc/src/license.rst
+Requires-Dist: wheel (>=0.36.2)
+Requires-Dist: importlib-metadata (>=4.8.3) ; python_version < "3.10"
+Requires-Dist: patchelf (>=0.12) ; sys_platform == "linux"
+Requires-Dist: cx-logging (>=3.0) ; sys_platform == "win32"
+Requires-Dist: lief (>=0.11.5) ; sys_platform == "win32" and python_version < "3.10"
+
+[![PyPI version](https://img.shields.io/pypi/v/cx_Freeze)](https://pypi.org/project/cx-freeze/)
+[![PyPi Downloads](https://img.shields.io/pypi/dm/cx_Freeze)](https://pypistats.org/packages/cx-freeze)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/cx_freeze/badges/version.svg)](https://anaconda.org/conda-forge/cx_freeze)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/cx_freeze/badges/downloads.svg)](https://anaconda.org/conda-forge/cx_freeze)
+[![Python](https://img.shields.io/pypi/pyversions/cx-freeze)](https://www.python.org/)
+[![Documentation Status](https://readthedocs.org/projects/cx-freeze/badge/?version=latest)](https://cx-freeze.readthedocs.io/en/latest/?badge=latest)
+[![License](https://img.shields.io/pypi/l/cx_Freeze.svg)](https://pypi.org/project/cx-Freeze/)
+[![LGTM](https://img.shields.io/lgtm/grade/python/g/marcelotduarte/cx_Freeze.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/marcelotduarte/cx_Freeze)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+
+**cx\_Freeze** creates standalone executables from Python scripts, with the same
+performance, is cross-platform and should work on any platform that Python
+itself works on.
+
+# Highlights of Version 6.10:
+- Support Application Manifests in Windows: manifest and uac-admin
+- EXPERIMENTAL New dependency resolver on Windows
+- EXPERIMENTAL Support for Apple Silicon using miniforge (conda-forge)
+- Bug fixes and improvements
+
+# Highlights of Version 6.2 up to 6.9:
+- Support for pathlib.Path
+- New or improved hooks, with emphasis on matplotlib, numpy, PyQt5 and PySide2
+- New ModuleFinder engine uses importlib.machinery
+- Refactored Freezer
+- New support for package metadata improving Module and new DitributionCache
+- Enhanced support for Python 3.8 and Python 3.9, including MSYS2 and Anaconda distributions
+- Improvements for multiprocessing
+- Optimizations in detection and distribution of libraries
+- Integrated to setuptools and importlib-metadata
+- Code modernization
+- Various bug fixes.
+
+# Installation
+
+In a virtual environment, install by issuing the command:
+
+```
+pip install --upgrade cx_Freeze
+```
+
+To install beta versions:
+```
+pip install --upgrade cx_Freeze --pre
+```
+
+Please check the installation in documentation for requirements.
+
+# Documentation
+
+The official documentation is available
+[here](https://cx-freeze.readthedocs.io).
+
+If you need help you can also ask on the discussion channel:
+https://github.com/marcelotduarte/cx_Freeze/discussions
+
+# License
+
+cx\_Freeze uses a license derived from the
+[Python Software Foundation License](https://www.python.org/psf/license).
+You can read the cx\_Freeze license in the
+[documentation](https://cx-freeze.readthedocs.io/en/latest/license.html)
+or in the [source repository](doc/src/license.rst).
+
+
