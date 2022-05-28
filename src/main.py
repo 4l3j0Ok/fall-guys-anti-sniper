@@ -7,6 +7,7 @@ from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal
 import qdarkstyle
 import utils
 import config
+from ui import Ui_MainWindow
 from logger import logger
 
 
@@ -40,10 +41,10 @@ class Daemon(QObject):
 					utils.notify_sniper()
 
 
-class HomeWindow(QMainWindow):
+class HomeWindow(QMainWindow, Ui_MainWindow):
 	def __init__(self):
 		super().__init__()
-		uic.loadUi(config.UI_PATH, self)
+		self.setupUi(self)
 		self.ui_basic_config()
 		self.run_daemon()
 		self.show()
