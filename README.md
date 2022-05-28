@@ -18,7 +18,7 @@ La lista de "Posibles Snipers" se basa en las últimas 5 partidas del juego, si 
 
 Nota 2: *La blacklist y otros datos utiles para la aplicación se guardan en data.json, son utiles para el funcionamiento de la aplicación. Recomiendo no eliminarlo, aunque, si lo hace, se volverá a crear cuando vuelva a abrir la aplicación. De todas formas este archivo, ni siquiera la aplicación entera maneja datos sensibles. Si tiene dudas, puede chequear el código, no es muy dificil de leer.*
 
-Nota 3: *Se creará también un archivo llamado "application.log", la cual contiene los logs de la aplicación. Si surge un error durante la ejecución, pongase en [contacto](mailto:afsarmiento@gmail.com) y/o abra un [issue](https://github.com/4l3j0Ok/fall-guys-anti-sniper/issues) adjuntando este archivo.
+Nota 3: *Se creará también un archivo llamado "application.log", la cual contiene los logs de la aplicación. Si surge un error durante la ejecución, pongase en [contacto](mailto:afsarmiento@gmail.com) y/o abra un [issue](https://github.com/4l3j0Ok/fall-guys-anti-sniper/issues) adjuntando este archivo.*
 
 Nota 4: *No recibirá la notificación si en Windows tiene activado el modo "No molestar".*
 
