@@ -31,8 +31,7 @@ Se acepta toda crítica constructiva y sugerencias, ¡los pull requests están a
 ## Descargas 🗃️
 
 Para descargar la aplicación simplemente ve al apartado de "Releases", aquí a la derecha, o presiona [AQUÍ](https://github.com/4l3j0Ok/fall-guys-anti-sniper/releases).
-Es un archivo ejecutable, no es un instalador.
-Simplemente ubíquelo dónde usted desee, ¡la aplicación funcionará igual!
+Ejecute el instalador, y siga los pasos y abra la aplicación. Igual que cualquier otro instalador!
 
 ## Desarrollado con 🛠️
 
