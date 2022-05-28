@@ -43,5 +43,5 @@ Este proyecto está bajo la Licencia MIT - mira el archivo [LICENSE.md](LICENSE.
 La inspiración para desarrollar este proyecto nació desde el stream del bobo de [Aitorek](https://twitch.tv/aitorek), así que gracias a él y a todo su chat 💞.
 
 ---
-⌨️ con ❤️ por [Alejoide](https://github.com/4l3j0Ok/) 😊
+⌨️ con ❤️ [Alejoide](https://github.com/4l3j0Ok/) 😎👌
 
