@@ -232,7 +232,12 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.suspects_list.addItem(suspect)
 		if first:
 			if data.get("snipers"):
-				utils.notify_sniper()
+				msg_box = QMessageBox(self)
+				msg_box.setWindowTitle("Snipers detectados")
+				msg_box.setIcon(QMessageBox.Warning)
+				msg_box.setText("Se han encontrado snipers en la partida.")
+				msg_box.setDefaultButton(QMessageBox.Close)
+				msg_box.exec_()
 
 
 	def clear_snipers(self):

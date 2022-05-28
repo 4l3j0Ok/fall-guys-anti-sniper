@@ -4,9 +4,7 @@ import sys
 
 
 APP_NAME = "Fall Guys Anti Sniper"
-APP_PATH = os.path.dirname(__file__) if __file__ else os.path.dirname(sys.executable)
 USER = os.getlogin()
-ICON_PATH = APP_PATH + "\\static\\icon.ico"
 DATA_PATH = ".\\data.json"
 PREV_GAMES_LIMIT = 5
 LOG_FILE_PATH = "C:\\Users\\{}\\AppData\\LocalLow\\Mediatonic\\FallGuys_client\\Player.log".format(USER)
