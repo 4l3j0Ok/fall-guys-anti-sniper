@@ -174,8 +174,7 @@ class Ui_MainWindow(object):
         self.add_manually_button.setText(_translate("MainWindow", "+"))
         self.current_game_label.setText(_translate("MainWindow", "<html><head/><body><p>Jugadores en la partida actual</p></body></html>"))
         self.add_player_to_blacklist_button.setText(_translate("MainWindow", "Agregar a la lista negra"))
-        self.suspects_label.setText(_translate("MainWindow", "Posibles snipers \n"
-"(por partidas anteriores)"))
+        self.suspects_label.setText(_translate("MainWindow", "Posibles snipers"))
         self.add_suspect_to_blacklist_button.setText(_translate("MainWindow", "Agregar a la lista negra"))
         self.menu_file.setTitle(_translate("MainWindow", "Archivo"))
         self.menu_help.setTitle(_translate("MainWindow", "Ayuda"))
