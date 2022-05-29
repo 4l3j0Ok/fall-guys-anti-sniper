@@ -6,7 +6,7 @@ from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal
 import qdarkstyle
 import utils
 import config
-from ui import Ui_MainWindow
+from static.ui import Ui_MainWindow
 import static.resources
 from logger import logger
 import time
