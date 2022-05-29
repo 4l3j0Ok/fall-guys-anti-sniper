@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 import csv
-import time
 from itertools import zip_longest
 from datetime import datetime
 from config import *
@@ -65,7 +64,6 @@ def get_players(index, username):
 		finished = False
 		logger.info("Voy a armar la lista de jugadores...")
 		while True:
-			time.sleep(3)
 			with open(LOG_FILE_PATH, "r") as f:
 				lines = f.readlines()
 				for line in lines[index:]:
