@@ -10,7 +10,7 @@ El usuario podrá agregar a la blacklist los snipers que él desee, **tanto manu
 
 Nota 1: *La aplicación nunca agregará jugadores a la blacklist personal del usuario salvo que éste indique lo contrario.*
 
-En el caso de que el usuario y un jugador que forme parte de la blacklist coincidan en la partida en curso, se le advertirá al usuario con una notificación de Windows de que posiblemente esté siendo snipeado. A su vez el sniper aparecerá en la **"lista de snipers"**.
+En el caso de que el usuario y un jugador que forme parte de la blacklist coincidan en la partida en curso, se le advertirá al usuario con una notificación de que posiblemente esté siendo snipeado. A su vez el sniper aparecerá en la **"lista de snipers"**.
 
 Así mismo, el jugador podrá ver la **lista completa de jugadores** en la partida en curso, en el caso de que éste quiera agregar uno de los jugadores y no aparezca en la lista de **"posibles snipers"**.
 
