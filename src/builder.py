@@ -53,7 +53,7 @@ executables = [Executable(".\src\main.py", base=base, target_name="FGAntiSniper"
 
 setup(
     name="FGAntiSniper",
-    version="1.0.0",
+    version="1.2",
     description="Fall Guys Anti Sniper",
     author="Alejoide",
     options={

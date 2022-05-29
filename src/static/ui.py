@@ -47,8 +47,12 @@ class Ui_MainWindow(object):
         self.title_label = QtWidgets.QLabel(self.title_widget)
         self.title_label.setGeometry(QtCore.QRect(70, 10, 451, 41))
         font = QtGui.QFont()
-        font.setFamily("Titan One")
-        self.title_label.setFont(font)
+        try:
+            font.setFamily("Titan One")
+            self.title_label.setFont(font)
+        except:
+            font.setFamily("Arial")
+            self.title_label.setFont(font)
         self.title_label.setMouseTracking(True)
         self.title_label.setStyleSheet("")
         self.title_label.setFrameShadow(QtWidgets.QFrame.Plain)

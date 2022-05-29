@@ -9,7 +9,7 @@ from logger import logger
 
 def find_new_game(index_list, cached_line, playing=False):
 	try:
-		with open(LOG_FILE_PATH, "r") as f:
+		with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
 			lines = f.readlines()
 			if not playing:
 				for index, line in enumerate(lines):
@@ -42,7 +42,7 @@ def find_new_game(index_list, cached_line, playing=False):
 
 
 def get_username():
-	with open(LOG_FILE_PATH, "r") as f:
+	with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
 		username = None
 		lines = f.readlines()
 		for line in lines:
@@ -64,7 +64,7 @@ def get_players(index, username):
 		finished = False
 		logger.info("Voy a armar la lista de jugadores...")
 		while True:
-			with open(LOG_FILE_PATH, "r") as f:
+			with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
 				lines = f.readlines()
 				for line in lines[index:]:
 					if PLAYER_TARGET_STRING in line:
@@ -89,7 +89,7 @@ def get_players(index, username):
 
 
 def update_prev_games_players(index, username):
-	with open(LOG_FILE_PATH, "r") as f:
+	with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
 		data = get_data()
 		lines = f.readlines()
 		players_list = []

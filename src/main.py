@@ -19,52 +19,60 @@ class Daemon(QObject):
 
 
 	def run(self):
-		blacklist = utils.get_data().get("blacklist", [])
-		self.blacklist_signal.emit(blacklist)
-		players_list = []
-		index_list = [0]
-		cached_line = ""
-		playing = False
-		username = None
-		while not username:
-			username = utils.get_username()
-		logger.info("Buscando nueva partida...")
-		while True:
-			if playing:
-				logger.info("Sigue jugando, durmiendo...")
-				time.sleep(60)
-				logger.info("Desperté.")
-			game_founded, index_list, cached_line, playing = utils.find_new_game(index_list, cached_line, playing=playing)
-			if game_founded:
-				logger.info("Hay nueva partida, guardo lo previo y emito señal.")
-				utils.update_prev_games_players(index_list[-1], username)
-				players_list = utils.get_players(index_list[-1], username)
-				self.players_list_signal.emit(players_list)
-				snipers = utils.get_snipers(players_list)
-				if snipers:
-					self.snipers_signal.emit(snipers)
+		try:
+			blacklist = utils.get_data().get("blacklist", [])
+			self.blacklist_signal.emit(blacklist)
+			players_list = []
+			index_list = [0]
+			cached_line = ""
+			playing = False
+			username = None
+			while not username:
+				username = utils.get_username()
+			logger.info("Buscando nueva partida...")
+			while True:
+				if playing:
+					logger.info("Sigue jugando, durmiendo...")
+					time.sleep(60)
+					logger.info("Desperté.")
+				game_founded, index_list, cached_line, playing = utils.find_new_game(index_list, cached_line, playing=playing)
+				if game_founded:
+					logger.info("Hay nueva partida, guardo lo previo y emito señal.")
+					utils.update_prev_games_players(index_list[-1], username)
+					players_list = utils.get_players(index_list[-1], username)
+					self.players_list_signal.emit(players_list)
+					snipers = utils.get_snipers(players_list)
+					if snipers:
+						self.snipers_signal.emit(snipers)
+		except Exception as ex:
+			logger.exception(ex)
 
 
 class HomeWindow(QMainWindow, Ui_MainWindow):
 	def __init__(self):
-		super().__init__()
-		self.setupUi(self)
-		self.ui_basic_config()
-		self.run_daemon()
-		self.show()
+		try:
+			super().__init__()
+			self.setupUi(self)
+			self.ui_basic_config()
+			self.run_daemon()
+		except Exception as ex:
+			logger.exception(ex)
 
 
 	def ui_basic_config(self):
-		self.windowIcon = QIcon(":/static/icon.png")
-		self.setWindowIcon(self.windowIcon)
-		self.action_about.triggered.connect(self.show_about)
-		self.action_export.triggered.connect(self.export)
-		self.action_exit.triggered.connect(QCoreApplication.instance().quit)
-		self.clear_blacklist_button.clicked.connect(self.clear_blacklist)
-		self.remove_player_blacklist_button.clicked.connect(self.remove_player_blacklist)
-		self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="current"))
-		self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="suspects"))
-		self.add_manually_button.clicked.connect(self.add_player_maually)
+		try:
+			self.windowIcon = QIcon(":/static/icon.png")
+			self.setWindowIcon(self.windowIcon)
+			self.action_about.triggered.connect(self.show_about)
+			self.action_export.triggered.connect(self.export)
+			self.action_exit.triggered.connect(QCoreApplication.instance().quit)
+			self.clear_blacklist_button.clicked.connect(self.clear_blacklist)
+			self.remove_player_blacklist_button.clicked.connect(self.remove_player_blacklist)
+			self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="current"))
+			self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="suspects"))
+			self.add_manually_button.clicked.connect(self.add_player_maually)
+		except Exception as ex:
+			logger.exception(ex)
 
 
 	def show_about(self):
@@ -257,12 +265,15 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		self.current_game_players_list.clear()
 		self.suspects_list.clear()
 
-
-if __name__ == "__main__":
+def main():
 	try:
 		app = QApplication(sys.argv)
 		app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 		home = HomeWindow()
+		home.show()
 		app.exec_()
 	except Exception as ex:
 		logger.exception(ex)
+
+if __name__ == "__main__":
+	main()
