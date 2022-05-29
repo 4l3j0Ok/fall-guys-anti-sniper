@@ -28,9 +28,11 @@ Se acepta toda crítica constructiva y sugerencias, ¡los pull requests están a
 
 ## Descargas 🗃️
 
-Para descargar la aplicación simplemente ve al apartado de "Releases", aquí a la derecha, o presiona [AQUÍ](https://github.com/4l3j0Ok/fall-guys-anti-sniper/releases).
-Ejecute el instalador, y siga los pasos y abra la aplicación. Igual que cualquier otro instalador!
-
+Para descargar la aplicación ejecute los siguientes pasos:
+- Ve al apartado de "Releases", aquí a la derecha, o presiona [AQUÍ](https://github.com/4l3j0Ok/fall-guys-anti-sniper/releases).
+- Descargue y descomprima el archivo .zip en donde usted desee.
+- En la carpeta FGAntiSniper encontrará el ejecutable "FGAntiSniper.exe", abralo y disfrute la app!
+- Nota: *Se recomienda crear un acceso directo de FGAntiSniper.exe en donde sea cómodo y accesible para evitar modificar archivos de la carpeta que son necesarios para el funcionamiento de la aplicación.*
 ## Desarrollado con 🛠️
 
 - Python 🐍
