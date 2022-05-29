@@ -9,6 +9,7 @@ import config
 from ui import Ui_MainWindow
 import static.resources
 from logger import logger
+import time
 
 
 class Daemon(QObject):
@@ -29,6 +30,7 @@ class Daemon(QObject):
 			username = utils.get_username()
 		logger.info("Buscando nueva partida...")
 		while True:
+			time.sleep(10)
 			game_founded, index_list, cached_line, playing = utils.find_new_game(index_list, cached_line, playing=playing)
 			if game_founded:
 				logger.info("Hay nueva partida, guardo lo previo y emito señal.")
