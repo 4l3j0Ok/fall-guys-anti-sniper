@@ -3,7 +3,7 @@ import os
 
 
 APP_NAME = "Fall Guys Anti Sniper"
-APP_VERSION = 1.3
+APP_VERSION = 1.4
 USER = os.getlogin()
 DATA_PATH = ".\\data.json"
 PREV_GAMES_LIMIT = 5
