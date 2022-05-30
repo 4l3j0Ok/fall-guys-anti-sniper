@@ -10,6 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import static.resources
+import config
 
 
 class Ui_MainWindow(object):
@@ -167,7 +168,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Fall Guys Anti Sniper"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Fall Guys Anti Sniper - v" + str(config.APP_VERSION)))
         self.snipers_label.setText(_translate("MainWindow", "<html><head/><body><p>Snipers encontrados</p></body></html>"))
         self.pushButton.setText(_translate("MainWindow", "Buscar en Twitch (próximamente)"))
         self.blacklist_label.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">Lista negra</span></p></body></html>"))
