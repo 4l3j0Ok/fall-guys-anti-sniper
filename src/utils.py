@@ -5,6 +5,7 @@ from itertools import zip_longest
 from datetime import datetime
 from config import *
 from logger import logger
+import requests
 
 
 def find_new_game(index_list, cached_line, playing=False):
@@ -42,20 +43,34 @@ def find_new_game(index_list, cached_line, playing=False):
 
 
 def get_username():
-	with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
-		username = None
-		lines = f.readlines()
-		for line in lines:
-			if USERNAME_TARGET_STRING in line:
-				logger.info("Último nombre del jugador obtenido!")
-				username = line.split(USERNAME_TARGET_STRING)[1].replace("\n", "")
-				data = get_data()
-				logger.debug("Guardando el nombre en data.json")
-				logger.debug(username)
-				data["username"] = username
-				save_data(data)
-				break
-		return username
+	try:
+		with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
+			username = None
+			lines = f.readlines()
+			for line in lines:
+				if USERNAME_TARGET_STRING in line:
+					logger.info("Último nombre del jugador obtenido!")
+					username = line.split(USERNAME_TARGET_STRING)[1].replace("\n", "")
+					data = get_data()
+					logger.debug("Guardando el nombre en data.json")
+					logger.debug(username)
+					data["username"] = username
+					save_data(data)
+					break
+			return username
+	except Exception as ex:
+		logger.exception(ex)
+		try:
+			logger.info("No pude obtener el username desde los logs, intento desde la data.")
+			username = get_data().get("username")
+			if username:
+				logger.info("Encontré el username: {}".format(username))
+				return username
+			return ""
+		except Exception as exd:
+			logger.exception(exd)
+			pass
+		return ""
 
 
 def get_players(index, username):
@@ -89,27 +104,32 @@ def get_players(index, username):
 
 
 def update_prev_games_players(index, username):
-	with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
-		data = get_data()
-		lines = f.readlines()
-		players_list = []
-		for line in lines[:index]:
-			if PLAYER_TARGET_STRING in line:
-				player = line.replace(line.split("_")[0] + "_", "").replace(" (" + line.split(" (")[1], "")
-				if player == username:
-					continue
-				if player in players_list:
-					continue
-				players_list.append(player)
-			if BREAK_TARGET_STRING in line:
-				data["prev_games_players"] = data.get("prev_games_players", [])
-				if len(data["prev_games_players"]) == PREV_GAMES_LIMIT:
-					data["prev_games_players"].pop(0)
-				logger.info("Guardando la lista anterior de jugadores...")
-				data["prev_games_players"].append([player for player in players_list])
-				save_data(data)
-				players_list = []
-	logger.info("Terminé de llenar la lista de jugadores previos.")
+	try:
+		with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
+			data = get_data()
+			lines = f.readlines()
+			players_list = []
+			for line in lines[:index]:
+				if PLAYER_TARGET_STRING in line:
+					player = line.replace(line.split("_")[0] + "_", "").replace(" (" + line.split(" (")[1], "")
+					if player == username:
+						continue
+					if player in players_list:
+						continue
+					players_list.append(player)
+				if BREAK_TARGET_STRING in line:
+					data["prev_games_players"] = data.get("prev_games_players", [])
+					if len(data["prev_games_players"]) == PREV_GAMES_LIMIT:
+						data["prev_games_players"].pop(0)
+					logger.info("Guardando la lista anterior de jugadores...")
+					data["prev_games_players"].append([player for player in players_list])
+					save_data(data)
+					players_list = []
+		logger.info("Terminé de llenar la lista de jugadores previos.")
+		return True
+	except Exception as ex:
+		logger.exception(ex)
+		return False
 
 
 def get_snipers(players_list):
@@ -152,37 +172,83 @@ def get_data():
 
 
 def save_data(data):
-	with open(DATA_PATH, "w") as f:
-		json.dump(data, f)
+	try:
+		with open(DATA_PATH, "w") as f:
+			json.dump(data, f)
+			return True
+	except Exception as ex:
+		logger.exception(ex)
+		return False
 
 
 def save_to_blacklist(player):
-	data = get_data()
-	data["blacklist"] = data.get("blacklist", [])
-	data["blacklist"].append(player)
-	save_data(data)
+	try:
+		data = get_data()
+		data["blacklist"] = data.get("blacklist", [])
+		data["blacklist"].append(player)
+		success = save_data(data)
+		if not success:
+			logger.error("Hubo un error al guardar en la blacklist.")
+			return False
+		return True
+	except Exception as ex:
+		logger.exception(ex)
+		return False
 
 
 def clear_blacklist(player=None):
-	data = get_data()
-	if data.get("blacklist"):
-		if not player:
-			logger.warning("Voy a limpiar la blacklist entera.")
-			del(data["blacklist"])
-		else:
-			logger.warning("Voy a sacar a '{}' de la blacklist.".format(player))
-			if player in data["blacklist"]:
-				data["blacklist"].remove(player)
-		save_data(data)
+	try:
+		data = get_data()
+		if data.get("blacklist"):
+			if not player:
+				logger.warning("Voy a limpiar la blacklist entera.")
+				del(data["blacklist"])
+			else:
+				logger.warning("Voy a sacar a '{}' de la blacklist.".format(player))
+				if player in data["blacklist"]:
+					data["blacklist"].remove(player)
+			success = save_data(data)
+			if not success:
+				logger.error("Hubo un error al limpiar la blacklist.")
+				return False
+	except Exception as ex:
+		logger.exception(ex)
+		return False
 
 
 def export_as_csv(blacklist, players, suspects, snipers):
-	filepath = ".\\fall_guys_anti_sniper_" + datetime.today().strftime("%d-%m-%Y_%H.%M.%S") + ".csv"
-	header = ["Lista negra", "Jugadores en la partida", "Posibles snipers", "Snipers"]
-	lists = [blacklist, players, suspects, snipers]
-	with open(filepath, "w", newline="") as f:
-		writer = csv.writer(f)
-		writer.writerow(header)
-		for values in zip_longest(*lists):
-			writer.writerow(values)
-	return filepath
+	try:
+		filepath = ".\\fall_guys_anti_sniper_" + datetime.today().strftime("%d-%m-%Y_%H.%M.%S") + ".csv"
+		header = ["Lista negra", "Jugadores en la partida", "Posibles snipers", "Snipers"]
+		lists = [blacklist, players, suspects, snipers]
+		with open(filepath, "w", newline="") as f:
+			writer = csv.writer(f)
+			writer.writerow(header)
+			for values in zip_longest(*lists):
+				writer.writerow(values)
+		return filepath
+	except Exception as ex:
+		logger.exception(ex)
+		return False
+
+
+def check_new_release():
+	try:
+		logger.info("Chequeando si hay nuevos releases.")
+		try:
+			response = requests.get(GITHUB_API_URL, timeout=5).json()
+		except requests.Timeout as exw:
+			logger.exception(exw)
+			return False
+		except requests.ConnectionError as exw:
+			logger.exception(exw)
+			return False
+		if response.get("tag_name"):
+			latest_version = float(response.get("tag_name").replace("v", ""))
+			if latest_version > APP_VERSION:
+				return True
+		logger.info("No encontré nuevos releases.")
+		return False
+	except Exception as ex:
+		logger.exception(ex)
+		return False

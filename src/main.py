@@ -3,25 +3,27 @@ import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal
+import time
+import webbrowser
 import qdarkstyle
 import utils
 import config
 from static.ui import Ui_MainWindow
 import static.resources
 from logger import logger
-import time
 
 
-class Daemon(QObject):
+class Worker(QObject):
 	blacklist_signal = pyqtSignal(list)
 	players_list_signal = pyqtSignal(list)
 	snipers_signal = pyqtSignal(dict)
+	new_release_signal = pyqtSignal(bool)
 
 
 	def run(self):
 		try:
-			blacklist = utils.get_data().get("blacklist", [])
-			self.blacklist_signal.emit(blacklist)
+			self.blacklist_signal.emit(utils.get_data().get("blacklist", []))
+			self.new_release_signal.emit(utils.check_new_release())
 			players_list = []
 			index_list = [0]
 			cached_line = ""
@@ -38,7 +40,9 @@ class Daemon(QObject):
 				game_founded, index_list, cached_line, playing = utils.find_new_game(index_list, cached_line, playing=playing)
 				if game_founded:
 					logger.info("Hay nueva partida, guardo lo previo y emito señal.")
-					utils.update_prev_games_players(index_list[-1], username)
+					success = utils.update_prev_games_players(index_list[-1], username)
+					if not success:
+						logger.error("Error obteniendo la lista de jugadores previos.")
 					players_list = utils.get_players(index_list[-1], username)
 					self.players_list_signal.emit(players_list)
 					snipers = utils.get_snipers(players_list)
@@ -54,7 +58,8 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			super().__init__()
 			self.setupUi(self)
 			self.ui_basic_config()
-			self.run_daemon()
+			self.show()
+			self.run_worker()
 		except Exception as ex:
 			logger.exception(ex)
 
@@ -91,11 +96,15 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		snipers =  [self.snipers_list.item(i).text() for i in range(self.snipers_list.count())]
 		path = utils.export_as_csv(blacklist, players, suspects, snipers)
 		msg_box = QMessageBox(self)
-		msg_box.setWindowTitle("Acerca de")
+		msg_box.setWindowTitle("Exportar")
 		msg_box.setIcon(QMessageBox.Question)
 		msg_box.setDefaultButton(QMessageBox.Close)
 		msg_box.setText("Archivo exportado!")
 		msg_box.setInformativeText("Ubicación: {}".format(path))
+		if not path:
+			msg_box.setIcon(QMessageBox.Critical)
+			msg_box.setText("Hubo un error al exportar el archivo.")
+			msg_box.setInformativeText("")
 		msg_box.exec_()
 
 
@@ -121,8 +130,14 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		result = msg_box.exec_()
 		if result == QMessageBox.Yes:
 			logger.info("Limpiando la blacklist.")
+			success = utils.clear_blacklist()
+			if not success:
+				err_msg_box = QMessageBox(self)
+				err_msg_box.setDefaultButton(QMessageBox.Close)
+				err_msg_box.setText("Hubo un error al limpiar la blacklist.")
+				err_msg_box.exec_()
+				return
 			self.blacklist_list.clear()
-			utils.clear_blacklist()
 		self.fill_snipers()
 
 
@@ -155,8 +170,14 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		result = msg_box.exec_()
 		if result == QMessageBox.Yes:
 			logger.info("Limpiando la blacklist.")
+			success = utils.clear_blacklist(player=player_name)
+			if not success:
+				err_msg_box = QMessageBox(self)
+				err_msg_box.setDefaultButton(QMessageBox.Close)
+				err_msg_box.setText("Hubo un error al limpiar la blacklist.")
+				err_msg_box.exec_()
+				return
 			self.blacklist_list.takeItem(player_index)
-			utils.clear_blacklist(player=player_name)
 		self.fill_snipers()
 
 
@@ -182,8 +203,14 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 				self.suspects_list.takeItem(player_index)
 		current_blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
 		if player_name not in current_blacklist:
+			success = utils.save_to_blacklist(player_name)
+			if not success:
+				err_msg_box = QMessageBox(self)
+				err_msg_box.setDefaultButton(QMessageBox.Close)
+				err_msg_box.setText("Hubo un error al guardar en la blacklist.")
+				err_msg_box.exec_()
+				return
 			self.blacklist_list.addItem(player_name)
-			utils.save_to_blacklist(player_name)
 			self.fill_snipers()
 
 
@@ -200,17 +227,18 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.add_to_blacklist(player_name=player)
 
 
-	def run_daemon(self):
+	def run_worker(self):
 		# QThread object to run daemon subprocess.
 		self.thread = QThread()
-		self.daemon = Daemon()
+		self.worker = Worker()
 		# Move daemon to the thread.
-		self.daemon.moveToThread(self.thread)
+		self.worker.moveToThread(self.thread)
 		# Connect signals and slots.
-		self.thread.started.connect(self.daemon.run)
-		self.daemon.blacklist_signal.connect(self.fill_blacklist)
-		self.daemon.players_list_signal.connect(self.fill_players)
-		self.daemon.snipers_signal.connect(lambda: self.fill_snipers(first=True))
+		self.thread.started.connect(self.worker.run)
+		self.worker.blacklist_signal.connect(self.fill_blacklist)
+		self.worker.players_list_signal.connect(self.fill_players)
+		self.worker.snipers_signal.connect(lambda: self.fill_snipers(first=True))
+		self.worker.new_release_signal.connect(self.check_new_release)
 		self.thread.start()
 
 
@@ -265,12 +293,29 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		self.current_game_players_list.clear()
 		self.suspects_list.clear()
 
+
+	def check_new_release(self, new_release):
+		if new_release:
+			msg_box = QMessageBox(self)
+			msg_box.setWindowTitle("Nueva versión")
+			msg_box.setIcon(QMessageBox.Information)
+			msg_box.setText("Se ha encontrado una nueva versión de la aplicación.")
+			msg_box.setInformativeText("¿Desea descargarla?")
+			msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+			buttonY = msg_box.button(QMessageBox.Yes)
+			buttonY.setText("Descargar")
+			buttonN = msg_box.button(QMessageBox.No)
+			buttonN.setText("Quizá más tarde")
+			result = msg_box.exec_()
+			if result == QMessageBox.Yes:
+				webbrowser.open(config.LATEST_RELEASE_URL)
+
+
 def main():
 	try:
 		app = QApplication(sys.argv)
 		app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 		home = HomeWindow()
-		home.show()
 		app.exec_()
 	except Exception as ex:
 		logger.exception(ex)

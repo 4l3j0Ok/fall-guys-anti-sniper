@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 
 
 APP_NAME = "Fall Guys Anti Sniper"
+APP_VERSION = 1.3
 USER = os.getlogin()
 DATA_PATH = ".\\data.json"
 PREV_GAMES_LIMIT = 5
@@ -16,3 +16,5 @@ BREAK_TARGET_STRING = "[GameStateMachine] Replacing FGClient.StateGameLoading wi
 GAME_OVER_TARGET_STRING = "[FG_UnityInternetNetworkManager] FG_NetworkManager shutdown completed"
 STRFTIME_FORMAT = "%d/%m/%Y - %H:%M:%S"
 ABOUT_STRING = "Desarrollado por: Alejoide.\nDesarrollado con: Python, Qt, Redragon Aryaman.\n\nPD: Aitorek Bobo."
+GITHUB_API_URL = "https://api.github.com/repos/4l3j0Ok/fall-guys-anti-sniper/releases/latest"
+LATEST_RELEASE_URL = "https://github.com/4l3j0Ok/fall-guys-anti-sniper/releases/latest"
