@@ -134,7 +134,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			if not success:
 				err_msg_box = QMessageBox(self)
 				err_msg_box.setDefaultButton(QMessageBox.Close)
-				err_msg_box.setText("Hubo un error al limpiar la blacklist.")
+				err_msg_box.setText("Hubo un error al eliminar el jugador.")
 				err_msg_box.exec_()
 				return
 			self.blacklist_list.clear()

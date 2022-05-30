@@ -201,6 +201,7 @@ def clear_blacklist(player=None):
 			if not success:
 				logger.error("Hubo un error al limpiar la blacklist.")
 				return False
+			return True
 	except Exception as ex:
 		logger.exception(ex)
 		return False
