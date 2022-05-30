@@ -133,6 +133,8 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			success = utils.clear_blacklist()
 			if not success:
 				err_msg_box = QMessageBox(self)
+				err_msg_box.setIcon(QMessageBox.Critical)
+				err_msg_box.setWindowTitle("Limpiar lista negra")
 				err_msg_box.setDefaultButton(QMessageBox.Close)
 				err_msg_box.setText("Hubo un error al eliminar el jugador.")
 				err_msg_box.exec_()
@@ -208,6 +210,8 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			success = utils.save_to_blacklist(player_name)
 			if not success:
 				err_msg_box = QMessageBox(self)
+				err_msg_box.setIcon(QMessageBox.Critical)
+				err_msg_box.setWindowTitle("Agregar a la lista negra")
 				err_msg_box.setDefaultButton(QMessageBox.Close)
 				err_msg_box.setText("Hubo un error al guardar en la blacklist.")
 				err_msg_box.exec_()
