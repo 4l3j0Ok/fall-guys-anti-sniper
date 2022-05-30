@@ -10,7 +10,7 @@ El usuario podrá agregar a la blacklist los snipers que él desee, **tanto manu
 
 Nota 1: *La aplicación nunca agregará jugadores a la blacklist personal del usuario salvo que éste indique lo contrario.*
 
-En el caso de que el usuario y un jugador que forme parte de la blacklist coincidan en la partida en curso, se le advertirá al usuario con una notificación de Windows de que posiblemente esté siendo snipeado. A su vez el sniper aparecerá en la **"lista de snipers"**.
+En el caso de que el usuario y un jugador que forme parte de la blacklist coincidan en la partida en curso, se le advertirá al usuario con una notificación de que posiblemente esté siendo snipeado. A su vez el sniper aparecerá en la **"lista de snipers"**.
 
 Así mismo, el jugador podrá ver la **lista completa de jugadores** en la partida en curso, en el caso de que éste quiera agregar uno de los jugadores y no aparezca en la lista de **"posibles snipers"**.
 
@@ -18,9 +18,15 @@ La lista de "Posibles Snipers" se basa en las últimas 5 partidas del juego, si 
 
 Nota 2: *La blacklist y otros datos utiles para la aplicación se guardan en data.json, son utiles para el funcionamiento de la aplicación. Recomiendo no eliminarlo, aunque, si lo hace, se volverá a crear cuando vuelva a abrir la aplicación. De todas formas este archivo, ni siquiera la aplicación entera maneja datos sensibles. Si tiene dudas, puede chequear el código, no es muy dificil de leer.*
 
-Nota 3: *Se creará también un archivo llamado "application.log", la cual contiene los logs de la aplicación. Si surge un error durante la ejecución, pongase en [contacto](mailto:afsarmiento@gmail.com) y/o abra un [issue](https://github.com/4l3j0Ok/fall-guys-anti-sniper/issues) adjuntando este archivo.*
+Nota 3: *Se creará también un archivo llamado "application.log", la cual contiene los logs de la aplicación. Si surge un error durante la ejecución, pongase en [contacto](mailto:alejofsarmiento@gmail.com) y/o abra un [issue](https://github.com/4l3j0Ok/fall-guys-anti-sniper/issues) adjuntando este archivo.*
 
 Se acepta toda crítica constructiva y sugerencias, ¡los pull requests están abiertos!
+
+## Opiniones 📈
+Aquí les dejo con un par de opiniones de los mas grandes streamers de Fall Guys!
+### [Keroro](https://clips.twitch.tv/DreamyOptimisticCormorantYouWHY-6Ni_uHpYBUTYBtzm)
+### [Aitorek](https://clips.twitch.tv/UnusualPlayfulOysterVoteNay-Qti2v5hSAqPcJ2wn)
+### [Aitorek otra vez](https://clips.twitch.tv/AgileOutstandingAyeayeShazBotstix-JQ0H_uTQAdiVLWJb)
 
 ## Pre-requisitos 📋
 
@@ -46,6 +52,9 @@ Este proyecto está bajo la Licencia MIT - mira el archivo [LICENSE.md](LICENSE.
 ## Menciones especiales 🎁
 
 La inspiración para desarrollar este proyecto nació desde el stream del bobo de [Aitorek](https://twitch.tv/aitorek), así que gracias a él y a todo su chat 💞.
+
+## Donaciones 💞
+Acepto donaciones por paypal! presiona [AQUÍ](https://paypal.me/4l3j0Ok?country.x=AR&locale.x=es_XC) para donarme!
 
 ---
 ⌨️ con ❤️ [Alejoide](https://github.com/4l3j0Ok/) 😎👌
