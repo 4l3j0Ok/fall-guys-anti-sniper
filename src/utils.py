@@ -60,17 +60,7 @@ def get_username():
 			return username
 	except Exception as ex:
 		logger.exception(ex)
-		try:
-			logger.info("No pude obtener el username desde los logs, intento desde la data.")
-			username = get_data().get("username")
-			if username:
-				logger.info("Encontré el username: {}".format(username))
-				return username
-			return ""
-		except Exception as exd:
-			logger.exception(exd)
-			pass
-		return ""
+		return None
 
 
 def get_players(index, username):
