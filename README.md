@@ -18,9 +18,15 @@ La lista de "Posibles Snipers" se basa en las últimas 5 partidas del juego, si 
 
 Nota 2: *La blacklist y otros datos utiles para la aplicación se guardan en data.json, son utiles para el funcionamiento de la aplicación. Recomiendo no eliminarlo, aunque, si lo hace, se volverá a crear cuando vuelva a abrir la aplicación. De todas formas este archivo, ni siquiera la aplicación entera maneja datos sensibles. Si tiene dudas, puede chequear el código, no es muy dificil de leer.*
 
-Nota 3: *Se creará también un archivo llamado "application.log", la cual contiene los logs de la aplicación. Si surge un error durante la ejecución, pongase en [contacto](mailto:afsarmiento@gmail.com) y/o abra un [issue](https://github.com/4l3j0Ok/fall-guys-anti-sniper/issues) adjuntando este archivo.*
+Nota 3: *Se creará también un archivo llamado "application.log", la cual contiene los logs de la aplicación. Si surge un error durante la ejecución, pongase en [contacto](mailto:alejofsarmiento@gmail.com) y/o abra un [issue](https://github.com/4l3j0Ok/fall-guys-anti-sniper/issues) adjuntando este archivo.*
 
 Se acepta toda crítica constructiva y sugerencias, ¡los pull requests están abiertos!
+
+## Opiniones 📈
+Aquí les dejo con un par de opiniones de los mas grandes streamers de Fall Guys!
+### [Keroro](https://clips.twitch.tv/DreamyOptimisticCormorantYouWHY-6Ni_uHpYBUTYBtzm)
+### [Aitorek](https://clips.twitch.tv/UnusualPlayfulOysterVoteNay-Qti2v5hSAqPcJ2wn)
+### [Aitorek otra vez](https://clips.twitch.tv/AgileOutstandingAyeayeShazBotstix-JQ0H_uTQAdiVLWJb)
 
 ## Pre-requisitos 📋
 
