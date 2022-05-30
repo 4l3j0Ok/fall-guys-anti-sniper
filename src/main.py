@@ -163,7 +163,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		msg_box.setIcon(QMessageBox.Warning)
 		msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
 		buttonY = msg_box.button(QMessageBox.Yes)
-		buttonY.setText("Limpiar")
+		buttonY.setText("Eliminar")
 		buttonN = msg_box.button(QMessageBox.No)
 		buttonN.setText('Cancelar')
 		msg_box.setText("¿Estás seguro de que quieres eliminar a '{}' de la lista negra?".format(player_name))
