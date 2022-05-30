@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\src\static\ui.ui'
+# Form implementation generated from reading ui file '.\src\static\home.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -43,10 +43,10 @@ class Ui_MainWindow(object):
         self.pushButton.setObjectName("pushButton")
         self.title_widget = QtWidgets.QWidget(self.main_widget)
         self.title_widget.setEnabled(True)
-        self.title_widget.setGeometry(QtCore.QRect(20, 0, 951, 61))
+        self.title_widget.setGeometry(QtCore.QRect(0, 0, 951, 61))
         self.title_widget.setObjectName("title_widget")
         self.title_label = QtWidgets.QLabel(self.title_widget)
-        self.title_label.setGeometry(QtCore.QRect(180, 0, 551, 61))
+        self.title_label.setGeometry(QtCore.QRect(200, 0, 551, 61))
         font = QtGui.QFont()
         font.setFamily("Titan One")
         self.title_label.setFont(font)
