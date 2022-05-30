@@ -2,5 +2,6 @@
   <qresource prefix="/static" >
     <file>icon.png</file>
     <file>icon.png</file>
+    <file>title.png</file>
   </qresource>
 </RCC>
