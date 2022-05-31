@@ -310,7 +310,6 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		path = QFileDialog.getSaveFileName(
 			self,
 			caption = "Guardar archivo",
-			directory = config.APP_PATH,
 			filter = "Archivo CSV (*.csv)"
 			)[0]
 		if path:
@@ -342,7 +341,6 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		path = QFileDialog.getOpenFileName(
 			self,
 			caption = "Importar lista negra",
-			directory = config.APP_PATH,
 			filter = "Archivo de texto (*.txt)"
 			)[0]
 		if path:
