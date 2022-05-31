@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit, QFileDialog
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal
 import time
@@ -69,13 +69,15 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.windowIcon = QIcon(":/static/icon.png")
 			self.setWindowIcon(self.windowIcon)
 			self.action_about.triggered.connect(self.show_about)
-			self.action_export.triggered.connect(self.export)
+			self.action_export_as_csv.triggered.connect(self.export_as_csv)
+			self.action_export_blacklist.triggered.connect(self.export_blacklist)
+			self.action_import_blacklist.triggered.connect(self.import_blacklist)
 			self.action_exit.triggered.connect(QCoreApplication.instance().quit)
 			self.clear_blacklist_button.clicked.connect(self.clear_blacklist)
 			self.remove_player_blacklist_button.clicked.connect(self.remove_player_blacklist)
 			self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="current"))
 			self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="suspects"))
-			self.add_manually_button.clicked.connect(self.add_player_maually)
+			self.add_manually_button.clicked.connect(self.add_player_manually)
 		except Exception as ex:
 			logger.exception(ex)
 
@@ -87,26 +89,6 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		msg_box.setDefaultButton(QMessageBox.Close)
 		msg_box.setText(config.ABOUT_STRING)
 		msg_box.exec_()
-
-
-	def export(self):
-		blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
-		players = [self.current_game_players_list.item(i).text() for i in range(self.current_game_players_list.count())]
-		suspects = [self.suspects_list.item(i).text() for i in range(self.suspects_list.count())]
-		snipers =  [self.snipers_list.item(i).text() for i in range(self.snipers_list.count())]
-		path = utils.export_as_csv(blacklist, players, suspects, snipers)
-		msg_box = QMessageBox(self)
-		msg_box.setWindowTitle("Exportar")
-		msg_box.setIcon(QMessageBox.Question)
-		msg_box.setDefaultButton(QMessageBox.Close)
-		msg_box.setText("Archivo exportado!")
-		msg_box.setInformativeText("Ubicación: {}".format(path))
-		if not path:
-			msg_box.setIcon(QMessageBox.Critical)
-			msg_box.setText("Hubo un error al exportar el archivo.")
-			msg_box.setInformativeText("")
-		msg_box.exec_()
-
 
 
 	def clear_blacklist(self):
@@ -207,7 +189,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 				self.suspects_list.takeItem(player_index)
 		current_blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
 		if player_name not in current_blacklist:
-			success = utils.save_to_blacklist(player_name)
+			success, blacklist = utils.save_to_blacklist(player_name)
 			if not success:
 				err_msg_box = QMessageBox(self)
 				err_msg_box.setIcon(QMessageBox.Critical)
@@ -220,7 +202,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.fill_snipers()
 
 
-	def add_player_maually(self):
+	def add_player_manually(self):
 		msg_box = QMessageBox(self)
 		msg_box.setWindowTitle("Agregar a la lista negra")
 		player, ok = QInputDialog.getText(
@@ -315,6 +297,82 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			result = msg_box.exec_()
 			if result == QMessageBox.Yes:
 				webbrowser.open(config.LATEST_RELEASE_URL)
+
+
+
+	def export_as_csv(self):
+		data = {}
+		data["method"] = "export"
+		blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
+		players = [self.current_game_players_list.item(i).text() for i in range(self.current_game_players_list.count())]
+		suspects = [self.suspects_list.item(i).text() for i in range(self.suspects_list.count())]
+		snipers =  [self.snipers_list.item(i).text() for i in range(self.snipers_list.count())]
+		path = QFileDialog.getSaveFileName(
+			self,
+			caption = "Guardar archivo",
+			directory = config.APP_PATH,
+			filter = "Archivo CSV (*.csv)"
+			)[0]
+		if path:
+			success = utils.export_as_csv(path, blacklist, players, suspects, snipers)
+			data["success"] = success
+			data["path"] = path
+			self.show_file_result(data)
+
+
+	def export_blacklist(self):
+		data = {}
+		data["method"] = "export"
+		blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
+		path = QFileDialog.getSaveFileName(
+			self,
+			caption = "Exportar lista negra",
+			filter = "Archivo de texto (*.txt)"
+			)[0]
+		if path:
+			success = utils.export_blacklist(path, blacklist)
+			data["success"] = success
+			data["path"] = path
+			self.show_file_result(data)
+
+
+	def import_blacklist(self):
+		data = {}
+		data["method"] = "import"
+		path = QFileDialog.getOpenFileName(
+			self,
+			caption = "Importar lista negra",
+			directory = config.APP_PATH,
+			filter = "Archivo de texto (*.txt)"
+			)[0]
+		if path:
+			success, blacklist = utils.import_blacklist(path)
+			data["success"] = success
+			data["path"] = path
+			self.show_file_result(data)
+			self.fill_blacklist(blacklist)
+			self.fill_snipers()
+
+
+	def show_file_result(self, data):
+		method = data.get("method")
+		msg_box = QMessageBox(self)
+		msg_box.setWindowTitle("{}".format(
+				"Exportar" if method == "export" else "Importar"
+			))
+		msg_box.setIcon(QMessageBox.Question)
+		msg_box.setDefaultButton(QMessageBox.Close)
+		msg_box.setText("Archivo {}!".format(
+			"exportado" if method == "export" else "importado"
+		))
+		msg_box.setInformativeText("Ubicación: {}".format(data["path"])) if data.get("path") else msg_box.setInformativeText("")
+		if not data.get("success"):
+			msg_box.setIcon(QMessageBox.Critical)
+			msg_box.setText("Hubo un error al {} el archivo.").format(
+				"exportar" if method == "export" else "importar"
+			)
+			msg_box.setInformativeText("")
+		msg_box.exec_()
 
 
 def main():

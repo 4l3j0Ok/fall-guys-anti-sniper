@@ -380,7 +380,15 @@
     <property name="title">
      <string>Archivo</string>
     </property>
-    <addaction name="action_export"/>
+    <widget class="QMenu" name="menu_lista_negra">
+     <property name="title">
+      <string>Lista negra</string>
+     </property>
+     <addaction name="action_import_blacklist"/>
+     <addaction name="action_export_blacklist"/>
+    </widget>
+    <addaction name="menu_lista_negra"/>
+    <addaction name="action_export_as_csv"/>
     <addaction name="action_exit"/>
    </widget>
    <widget class="QMenu" name="menu_help">
@@ -389,10 +397,17 @@
     </property>
     <addaction name="action_about"/>
    </widget>
+   <widget class="QMenu" name="menu_edit">
+    <property name="title">
+     <string>Editar</string>
+    </property>
+    <addaction name="action_preferences"/>
+   </widget>
    <addaction name="menu_file"/>
+   <addaction name="menu_edit"/>
    <addaction name="menu_help"/>
   </widget>
-  <action name="action_export">
+  <action name="action_export_as_csv">
    <property name="text">
     <string>Exportar como CSV</string>
    </property>
@@ -405,6 +420,21 @@
   <action name="action_about">
    <property name="text">
     <string>Acerca de</string>
+   </property>
+  </action>
+  <action name="action_export_blacklist">
+   <property name="text">
+    <string>Exportar</string>
+   </property>
+  </action>
+  <action name="action_import_blacklist">
+   <property name="text">
+    <string>Importar</string>
+   </property>
+  </action>
+  <action name="action_preferences">
+   <property name="text">
+    <string>Preferencias</string>
    </property>
   </action>
  </widget>

@@ -163,7 +163,7 @@ def get_data():
 
 def save_data(data):
 	try:
-		with open(DATA_PATH, "w") as f:
+		with open(DATA_PATH, "w", encoding="utf8") as f:
 			json.dump(data, f)
 			return True
 	except Exception as ex:
@@ -171,19 +171,23 @@ def save_data(data):
 		return False
 
 
-def save_to_blacklist(player):
+def save_to_blacklist(players):
 	try:
 		data = get_data()
 		data["blacklist"] = data.get("blacklist", [])
-		data["blacklist"].append(player)
+		if isinstance(players, str):
+			data["blacklist"].append(str(players))
+		elif isinstance(players, list):
+			for player in players:
+				data["blacklist"].append(str(player).replace("\n", ""))
 		success = save_data(data)
 		if not success:
 			logger.error("Hubo un error al guardar en la blacklist.")
-			return False
-		return True
+			return False, []
+		return True, data["blacklist"]
 	except Exception as ex:
 		logger.exception(ex)
-		return False
+		return False, []
 
 
 def clear_blacklist(player=None):
@@ -207,9 +211,8 @@ def clear_blacklist(player=None):
 		return False
 
 
-def export_as_csv(blacklist, players, suspects, snipers):
+def export_as_csv(filepath, blacklist, players, suspects, snipers):
 	try:
-		filepath = ".\\fall_guys_anti_sniper_" + datetime.today().strftime("%d-%m-%Y_%H.%M.%S") + ".csv"
 		header = ["Lista negra", "Jugadores en la partida", "Posibles snipers", "Snipers"]
 		lists = [blacklist, players, suspects, snipers]
 		with open(filepath, "w", newline="") as f:
@@ -217,10 +220,36 @@ def export_as_csv(blacklist, players, suspects, snipers):
 			writer.writerow(header)
 			for values in zip_longest(*lists):
 				writer.writerow(values)
-		return filepath
+		return True, filepath
+	except Exception as ex:
+		logger.exception(ex)
+		return False, ""
+
+
+def export_blacklist(filepath, blacklist):
+	try:
+		with open(filepath, "w+") as f:
+			for player in blacklist:
+				logger.info("Voy a exportar esta blacklist: {}".format(blacklist))
+				f.write(player + "\n")
+		return True
 	except Exception as ex:
 		logger.exception(ex)
 		return False
+
+
+def import_blacklist(filepath):
+	try:
+		with open(filepath, "r", encoding="utf8") as f:
+			players = f.readlines()
+			logger.info("Voy a importar esta blacklist: {}".format(players))
+			success, blacklist = save_to_blacklist(players)
+			if not success:
+				return False, []
+		return True, blacklist
+	except Exception as ex:
+		logger.exception(ex)
+		return False, []
 
 
 def check_new_release():
