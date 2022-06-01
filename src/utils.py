@@ -181,12 +181,14 @@ def save_to_blacklist(players):
 		data = get_data()
 		data["blacklist"] = data.get("blacklist", [])
 		if isinstance(players, str):
+			players = str(players).replace("\n", "")
 			if players not in data["blacklist"]:
-				data["blacklist"].append(str(players).replace("\n", ""))
+				data["blacklist"].append(players)
 		elif isinstance(players, list):
 			for player in players:
+				player = str(player).replace("\n", "")
 				if player not in data["blacklist"]:
-					data["blacklist"].append(str(player).replace("\n", ""))
+					data["blacklist"].append(player)
 		success = save_data(data)
 		if not success:
 			logger.error("Hubo un error al guardar en la blacklist.")
