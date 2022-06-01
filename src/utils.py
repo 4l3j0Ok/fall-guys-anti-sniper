@@ -152,12 +152,17 @@ def get_snipers(players_list):
 		return {}
 
 
-def get_data():
+def get_data(key=None, default=None):
 	try:
 		with open(DATA_PATH, "r") as f:
-			return json.load(f)
+			data = json.load(f)
+			if key:
+				return data.get(key, default)
+			return data
 	except:
 		with open(DATA_PATH, "w+") as f:
+			if default != None:
+				return default
 			return {}
 
 

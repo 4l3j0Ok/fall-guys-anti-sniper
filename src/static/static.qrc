@@ -3,5 +3,6 @@
     <file>icon.png</file>
     <file>icon.png</file>
     <file>title.png</file>
+    <file>sniper_detected.wav</file>
   </qresource>
 </RCC>

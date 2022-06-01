@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit, QFileDialog
+import os
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit, QFileDialog, QWidget
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal
+from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal, Qt
+from PyQt5.QtMultimedia import QSound
 import time
 import webbrowser
 import qdarkstyle
 import utils
 import config
-from static.ui import Ui_MainWindow
+import preferences
+from static.main_ui import Ui_MainWindow
 import static.resources
 from logger import logger
 
@@ -22,7 +25,7 @@ class Worker(QObject):
 
 	def run(self):
 		try:
-			self.blacklist_signal.emit(utils.get_data().get("blacklist", []))
+			self.blacklist_signal.emit(utils.get_data("blacklist", []))
 			self.new_release_signal.emit(utils.check_new_release())
 			players_list = []
 			index_list = [0]
@@ -58,7 +61,6 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			super().__init__()
 			self.setupUi(self)
 			self.ui_basic_config()
-			self.show()
 			self.run_worker()
 		except Exception as ex:
 			logger.exception(ex)
@@ -73,11 +75,21 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.action_export_blacklist.triggered.connect(self.export_blacklist)
 			self.action_import_blacklist.triggered.connect(self.import_blacklist)
 			self.action_exit.triggered.connect(QCoreApplication.instance().quit)
+			self.action_preferences.triggered.connect(self.show_preferences)
 			self.clear_blacklist_button.clicked.connect(self.clear_blacklist)
 			self.remove_player_blacklist_button.clicked.connect(self.remove_player_blacklist)
 			self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="current"))
 			self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="suspects"))
 			self.add_manually_button.clicked.connect(self.add_player_manually)
+		except Exception as ex:
+			logger.exception(ex)
+
+
+	def show_preferences(self):
+		try:
+			self.preferences = preferences.PreferencesWindow()
+			self.preferences.setWindowIcon(self.windowIcon)
+			self.preferences.show()
 		except Exception as ex:
 			logger.exception(ex)
 
@@ -189,7 +201,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 				self.suspects_list.takeItem(player_index)
 		current_blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
 		if player_name not in current_blacklist:
-			success, blacklist = utils.save_to_blacklist(player_name)
+			success = utils.save_to_blacklist(player_name)[0]
 			if not success:
 				err_msg_box = QMessageBox(self)
 				err_msg_box.setIcon(QMessageBox.Critical)
@@ -266,6 +278,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 				msg_box.setIcon(QMessageBox.Warning)
 				msg_box.setText("Se han encontrado snipers en la partida.")
 				msg_box.setDefaultButton(QMessageBox.Close)
+				self.play_sound()
 				msg_box.exec_()
 
 
@@ -366,11 +379,30 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		msg_box.setInformativeText("Ubicación: {}".format(data["path"])) if data.get("path") else msg_box.setInformativeText("")
 		if not data.get("success"):
 			msg_box.setIcon(QMessageBox.Critical)
-			msg_box.setText("Hubo un error al {} el archivo.").format(
+			msg_box.setText("Hubo un error al {} el archivo.".format(
 				"exportar" if method == "export" else "importar"
-			)
+			))
 			msg_box.setInformativeText("")
 		msg_box.exec_()
+
+
+	def play_sound(self):
+		try:
+			audio_to_play = ":/static/sniper_detected.wav"
+			if utils.get_data("preferences", {}).get("audio_checked", False):
+				path = utils.get_data("preferences").get("audio_file_path")
+				if path:
+					if os.path.exists(path):
+						logger.info("El archivo existe.")
+						audio_to_play = path
+					else:
+						logger.error("El archivo no existe, uso el que tengo por defecto.")
+			sound = QSound(audio_to_play, self)
+			sound.play()
+		except Exception as ex:
+			logger.exception(ex)
+			logger.error("Hubo un error al reproducir el archivo.")
+			pass
 
 
 def main():
@@ -378,6 +410,7 @@ def main():
 		app = QApplication(sys.argv)
 		app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 		home = HomeWindow()
+		home.show()
 		app.exec_()
 	except Exception as ex:
 		logger.exception(ex)
