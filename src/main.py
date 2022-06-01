@@ -199,19 +199,17 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 				player_index = self.suspects_list.currentRow()
 				player_name = self.suspects_list.currentItem().text()
 				self.suspects_list.takeItem(player_index)
-		current_blacklist = [self.blacklist_list.item(i).text() for i in range(self.blacklist_list.count())]
-		if player_name not in current_blacklist:
-			success = utils.save_to_blacklist(player_name)[0]
-			if not success:
-				err_msg_box = QMessageBox(self)
-				err_msg_box.setIcon(QMessageBox.Critical)
-				err_msg_box.setWindowTitle("Agregar a la lista negra")
-				err_msg_box.setDefaultButton(QMessageBox.Close)
-				err_msg_box.setText("Hubo un error al guardar en la blacklist.")
-				err_msg_box.exec_()
-				return
-			self.blacklist_list.addItem(player_name)
-			self.fill_snipers()
+		success, blacklist = utils.save_to_blacklist(player_name)
+		if not success:
+			err_msg_box = QMessageBox(self)
+			err_msg_box.setIcon(QMessageBox.Critical)
+			err_msg_box.setWindowTitle("Agregar a la lista negra")
+			err_msg_box.setDefaultButton(QMessageBox.Close)
+			err_msg_box.setText("Hubo un error al guardar en la blacklist.")
+			err_msg_box.exec_()
+			return
+		self.fill_blacklist(blacklist)
+		self.fill_snipers()
 
 
 	def add_player_manually(self):
