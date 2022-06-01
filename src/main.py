@@ -371,9 +371,9 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		msg_box.setWindowTitle("{}".format(
 				"Exportar" if method == "export" else "Importar"
 			))
-		msg_box.setIcon(QMessageBox.Question)
+		msg_box.setIcon(QMessageBox.Information)
 		msg_box.setDefaultButton(QMessageBox.Close)
-		msg_box.setText("Archivo {}!".format(
+		msg_box.setText("¡Archivo {}!".format(
 			"exportado" if method == "export" else "importado"
 		))
 		msg_box.setInformativeText("Ubicación: {}".format(data["path"])) if data.get("path") else msg_box.setInformativeText("")
