@@ -248,6 +248,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 
 	def fill_blacklist(self, blacklist):
+		self.blacklist_list.clear()
 		logger.info("Llenando la blacklist.")
 		logger.debug(blacklist)
 		for item in blacklist:
