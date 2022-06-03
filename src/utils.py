@@ -135,16 +135,18 @@ def get_snipers(players_list):
 		for player in players_list:
 			if player == username:
 				continue
-			if player in blacklist:
-				logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
-				snipers_data["snipers"].append(player)
-				continue
-			for prev_players in prev_games:
-				if player in prev_players:
-					if player not in snipers_data["suspects"]:
-						logger.info("ENCONTRÉ UN POSIBLE SNIPER: {}".format(player))
-						snipers_data["suspects"].append(player)
-						continue
+			if blacklist:
+				if player.lower() in [p.lower() for p in blacklist]:
+					logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
+					snipers_data["snipers"].append(player)
+					continue
+			if prev_games:
+				for prev_players in prev_games:
+					if player.lower() in [p.lower() for p in prev_players]:
+						if player not in snipers_data["suspects"]:
+							logger.info("ENCONTRÉ UN POSIBLE SNIPER: {}".format(player))
+							snipers_data["suspects"].append(player)
+							continue
 		logger.debug(snipers_data)
 		return snipers_data
 	except Exception as ex:
