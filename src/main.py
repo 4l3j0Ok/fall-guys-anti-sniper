@@ -3,17 +3,17 @@ import sys
 import os
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit, QFileDialog, QWidget
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal, Qt
+from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal
 from PyQt5.QtMultimedia import QSound
 import time
-import webbrowser
 import qdarkstyle
+import preferences
 import utils
 import config
-import preferences
+import updater
+from logger import logger
 from static.main_ui import Ui_MainWindow
 import static.resources
-from logger import logger
 
 
 class Worker(QObject):
@@ -308,7 +308,27 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			buttonN.setText("Quizá más tarde")
 			result = msg_box.exec_()
 			if result == QMessageBox.Yes:
-				webbrowser.open(config.LATEST_RELEASE_URL)
+				msg_box.setText("Se descargará la ultima versión en segundo plano.")
+				msg_box.setInformativeText("Sea paciente, se le avisará cuando termine.")
+				msg_box.setStandardButtons(QMessageBox.Ok)
+				msg_box.exec_()
+
+
+	def update(self):
+		msg_box = QMessageBox(self)
+		msg_box.setWindowTitle("Descargar")
+		msg_box.setIcon(QMessageBox.Information)
+		msg_box.setDefaultButton(QMessageBox.Close)
+		success, result = updater.update()
+		if not success:
+			msg_box.setIcon(QMessageBox.Warning)
+			msg_box.setText(result)
+			msg_box.exec_()
+			return
+		msg_box.setText("Éxito al descargar la ultima versión.\nUbicación: {}".format(result))
+		msg_box.setInformativeText("Puede eliminar esta versión si lo desea.")
+		msg_box.exec_()
+		return
 
 
 
@@ -396,8 +416,8 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 						audio_to_play = path
 					else:
 						logger.error("El archivo no existe, uso el que tengo por defecto.")
-			sound = QSound(audio_to_play, self)
-			sound.play()
+				sound = QSound(audio_to_play, self)
+				sound.play()
 		except Exception as ex:
 			logger.exception(ex)
 			logger.error("Hubo un error al reproducir el archivo.")
@@ -406,6 +426,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 def main():
 	try:
+		utils.clear_log()
 		app = QApplication(sys.argv)
 		app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 		home = HomeWindow()

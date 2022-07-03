@@ -6,6 +6,7 @@ from datetime import datetime
 from config import *
 from logger import logger
 import requests
+import shutil
 
 
 def find_new_game(index_list, cached_line, playing=False):
@@ -283,3 +284,27 @@ def check_new_release():
 	except Exception as ex:
 		logger.exception(ex)
 		return False
+
+
+def get_latest_version():
+	try:
+		response = requests.get(GITHUB_API_URL).json()
+	except requests.Timeout as exw:
+		logger.exception(exw)
+		return False, ERR_CONNECTION
+	except requests.ConnectionError as exw:
+		logger.exception(exw)
+		return False, ERR_CONNECTION
+	if response.get("tag_name"):
+		return True, response["tag_name"]
+	return False, ERR_TAG_NAME
+
+
+def clear_log():
+	try:
+		dest = APP_LOG_FILE_PATH.replace(".log", "_old.log")
+		shutil.copy(APP_LOG_FILE_PATH, dest)
+		open(APP_LOG_FILE_PATH, "w+").close()
+		logger.info("Log antiguo guardado en {}.".format(dest))
+	except Exception as ex:
+		logger.exception(ex)
