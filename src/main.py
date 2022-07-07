@@ -3,7 +3,7 @@ import sys
 import os
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit, QFileDialog, QWidget
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal
+from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal, QThreadPool
 from PyQt5.QtMultimedia import QSound
 import time
 import qdarkstyle
@@ -312,14 +312,16 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 				msg_box.setInformativeText("Sea paciente, se le avisará cuando termine.")
 				msg_box.setStandardButtons(QMessageBox.Ok)
 				msg_box.exec_()
+				worker = updater.Update()
+				worker.signals.success_signal.connect(self.show_updater_results)
+				QThreadPool.globalInstance().start(worker)
 
 
-	def update(self):
+	def show_updater_results(self, success, result):
 		msg_box = QMessageBox(self)
 		msg_box.setWindowTitle("Descargar")
 		msg_box.setIcon(QMessageBox.Information)
 		msg_box.setDefaultButton(QMessageBox.Close)
-		success, result = updater.update()
 		if not success:
 			msg_box.setIcon(QMessageBox.Warning)
 			msg_box.setText(result)

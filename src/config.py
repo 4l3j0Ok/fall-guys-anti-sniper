@@ -4,7 +4,7 @@ import os
 
 # APP CONFIG
 APP_NAME = "Fall Guys Anti Sniper"
-APP_VERSION = 1.2
+APP_VERSION = 1.6
 STRFTIME_FORMAT = "%d/%m/%Y - %H:%M:%S"
 
 
