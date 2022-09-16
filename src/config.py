@@ -4,13 +4,13 @@ import os
 
 # APP CONFIG
 APP_NAME = "Fall Guys Anti Sniper"
-APP_VERSION = 1.6
+APP_VERSION = 1.7
 STRFTIME_FORMAT = "%d/%m/%Y - %H:%M:%S"
 
 
 # PATHS
-USER = os.getlogin()
-LOG_FILE_PATH = "C:\\Users\\{}\\AppData\\LocalLow\\Mediatonic\\FallGuys_client\\Player.log".format(USER)
+LOCALAPPDATA = os.environ.get("LOCALAPPDATA")
+LOG_FILE_PATH = "{}Low\\Mediatonic\\FallGuys_client\\Player.log".format(LOCALAPPDATA)
 APP_LOG_FILE_PATH = ".\\application.log"
 DATA_PATH = ".\\data.json"
 
@@ -18,8 +18,8 @@ DATA_PATH = ".\\data.json"
 # APP MISC CONFIG
 PREV_GAMES_LIMIT = 5
 USERNAME_TARGET_STRING = "[UserInfo] Player Name: "
-POSSIBLE_GAME_TARGET_STRING = "[GameStateMachine] Replacing FGClient.StateConnectToGame with FGClient.StateWaitingForGameToStart"
-FOUND_GAME_TARGET_STRING = "[GameStateMachine] Replacing FGClient.StateWaitingForGameToStart with FGClient.StateGameLoading"
+POSSIBLE_GAME_TARGET_STRING = "[GameStateMachine] Replacing FGClient.StateConnectToGame with FGClient.StateConnectionAuthentication"
+FOUND_GAME_TARGET_STRING = "[GameStateMachine] Replacing FGClient.StateConnectionAuthentication with FGClient.StateGameLoading"
 PLAYER_TARGET_STRING = "[CameraDirector] Adding Spectator target "
 BREAK_TARGET_STRING = "[GameStateMachine] Replacing FGClient.StateGameLoading with FGClient.StateGameInProgress"
 GAME_OVER_TARGET_STRING = "[FG_UnityInternetNetworkManager] FG_NetworkManager shutdown completed"

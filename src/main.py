@@ -14,6 +14,7 @@ import updater
 from logger import logger
 from static.main_ui import Ui_MainWindow
 import static.resources
+from msg_boxes import msgBox
 
 
 class Worker(QObject):
@@ -70,7 +71,13 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		try:
 			self.windowIcon = QIcon(":/static/icon.png")
 			self.setWindowIcon(self.windowIcon)
-			self.action_about.triggered.connect(self.show_about)
+			self.action_about.triggered.connect(
+				lambda: msgBox.question(
+					self,
+					title="Acerca de",
+					text=config.ABOUT_STRING
+					)
+				)
 			self.action_export_as_csv.triggered.connect(self.export_as_csv)
 			self.action_export_blacklist.triggered.connect(self.export_blacklist)
 			self.action_import_blacklist.triggered.connect(self.import_blacklist)
@@ -83,6 +90,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.add_manually_button.clicked.connect(self.add_player_manually)
 		except Exception as ex:
 			logger.exception(ex)
+			pass
 
 
 	def show_preferences(self):
@@ -94,47 +102,33 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			logger.exception(ex)
 
 
-	def show_about(self):
-		msg_box = QMessageBox(self)
-		msg_box.setWindowTitle("Acerca de")
-		msg_box.setIcon(QMessageBox.Question)
-		msg_box.setDefaultButton(QMessageBox.Close)
-		msg_box.setText(config.ABOUT_STRING)
-		msg_box.exec_()
-
-
 	def clear_blacklist(self):
-		msg_box = QMessageBox(self)
-		msg_box.setWindowTitle("Limpiar lista negra")
+		title = "Limpiar lista negra"
 		if not self.blacklist_list:
-			msg_box.setIcon(QMessageBox.Information)
-			msg_box.setText("La lista negra está vacía.")
-			msg_box.setDefaultButton(QMessageBox.Close)
-			msg_box.exec_()
+			msgBox.info(
+				self,
+				title=title,
+				text="La lista negra está vacía."
+				)
 			return
-		msg_box.setIcon(QMessageBox.Warning)
-		msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-		buttonY = msg_box.button(QMessageBox.Yes)
-		buttonY.setText("Limpiar")
-		buttonN = msg_box.button(QMessageBox.No)
-		buttonN.setText('Cancelar')
-		msg_box.setText("¿Estás seguro de querer limpiar la lista negra?")
-		msg_box.setInformativeText("Esta acción no se puede deshacer.")
-		msg_box.setFixedSize(500, 500)
-		result = msg_box.exec_()
-		if result == QMessageBox.Yes:
+		result = msgBox.warning_result(
+			self,
+			title=title,
+			text="¿Estás seguro de querer limpiar la lista negra?",
+			inf_text="Esta acción no se puede deshacer."
+			)
+		if result:
 			logger.info("Limpiando la blacklist.")
 			success = utils.clear_blacklist()
 			if not success:
-				err_msg_box = QMessageBox(self)
-				err_msg_box.setIcon(QMessageBox.Critical)
-				err_msg_box.setWindowTitle("Limpiar lista negra")
-				err_msg_box.setDefaultButton(QMessageBox.Close)
-				err_msg_box.setText("Hubo un error al eliminar el jugador.")
-				err_msg_box.exec_()
+				msgBox.error(
+					self,
+					title=title,
+					text="Hubo un error al eliminar el jugador."
+				)
 				return
 			self.blacklist_list.clear()
-		self.fill_snipers()
+			self.fill_snipers()
 
 
 	def remove_player_blacklist(self):
@@ -424,6 +418,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			logger.exception(ex)
 			logger.error("Hubo un error al reproducir el archivo.")
 			pass
+
 
 
 def main():

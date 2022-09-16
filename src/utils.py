@@ -308,3 +308,11 @@ def clear_log():
 		logger.info("Log antiguo guardado en {}.".format(dest))
 	except Exception as ex:
 		logger.exception(ex)
+
+# TODO
+# def prevalidate():
+# 	try:
+# 		logfile = open(LOG_FILE_PATH, "r", encoding="utf8")
+# 		logger.info("Encontré el archivo log del juego.")
+# 	except Exception as ex:
+# 		logger.exception(ex)
