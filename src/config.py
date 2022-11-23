@@ -4,8 +4,9 @@ import os
 
 # APP CONFIG
 APP_NAME = "Fall Guys Anti Sniper"
-APP_VERSION = 1.4
+APP_VERSION = 1.8
 STRFTIME_FORMAT = "%d/%m/%Y - %H:%M:%S"
+EVIL_MEDIATONIC = True
 
 
 # PATHS

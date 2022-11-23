@@ -88,6 +88,19 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="current"))
 			self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="suspects"))
 			self.add_manually_button.clicked.connect(self.add_player_manually)
+			if config.EVIL_MEDIATONIC:
+				self.current_game_players_list.addItem("Temporalmente deshabilitado.")
+				self.current_game_players_list.addItem("Vas a tener que agregar jugadores")
+				self.current_game_players_list.addItem("manualmente tocando el botón '+'.")
+				self.current_game_players_list.addItem("Gracias Mediatonic.")
+				self.suspects_list.addItem("Temporalmente deshabilitado.")
+				self.suspects_list.addItem("Gracias Mediatonic.")
+				self.suspects_label.setDisabled(True)
+				self.suspects_list.setDisabled(True)
+				self.add_suspect_to_blacklist_button.setDisabled(True)
+				self.current_game_label.setDisabled(True)
+				self.current_game_players_list.setDisabled(True)
+				self.add_player_to_blacklist_button.setDisabled(True)
 		except Exception as ex:
 			logger.exception(ex)
 			pass
@@ -235,6 +248,9 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 
 	def fill_players(self, players_list):
+		if config.EVIL_MEDIATONIC:
+			self.global_players_list = players_list
+			return
 		self.clear_players_lists()
 		logger.info("Llenando la lista con los nuevos jugadores.")
 		for player in players_list:
@@ -251,7 +267,10 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 	def fill_snipers(self, data=None, first=False):
 		if not data:
-			players_list = [self.current_game_players_list.item(i).text() for i in range(self.current_game_players_list.count())]
+			if config.EVIL_MEDIATONIC:
+				players_list = self.global_players_list
+			else:
+				players_list = [self.current_game_players_list.item(i).text() for i in range(self.current_game_players_list.count())]
 			data = utils.get_snipers(players_list)
 		self.clear_snipers()
 		logger.info("Llenando la lista de snipers.")
@@ -276,10 +295,11 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 
 	def clear_snipers(self):
-		logger.info("Limpiando la lista de snipers antigua.")
-		self.snipers_list.clear()
-		logger.info("Limpiando la lista de posibles snipers antigua.")
-		self.suspects_list.clear()
+		if not config.EVIL_MEDIATONIC:
+			logger.info("Limpiando la lista de snipers antigua.")
+			self.snipers_list.clear()
+			logger.info("Limpiando la lista de posibles snipers antigua.")
+			self.suspects_list.clear()
 
 
 	def clear_players_lists(self):

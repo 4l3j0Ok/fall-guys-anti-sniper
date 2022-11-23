@@ -74,7 +74,7 @@ def get_players(index, username):
 				lines = f.readlines()
 				for line in lines[index:]:
 					if PLAYER_TARGET_STRING in line:
-						player = line.replace(line.split("_")[0] + "_", "").replace(" (" + line.split(" (")[1], "")
+						player = line.replace(line.split("...")[0] + "...", "").replace(" (" + line.split(" (")[1], "")
 						if player == username:
 							continue
 						if player in players_list:
@@ -102,7 +102,7 @@ def update_prev_games_players(index, username):
 			players_list = []
 			for line in lines[:index]:
 				if PLAYER_TARGET_STRING in line:
-					player = line.replace(line.split("_")[0] + "_", "").replace(" (" + line.split(" (")[1], "")
+					player = line.replace(line.split("...")[0] + "...", "").replace(" (" + line.split(" (")[1], "")
 					if player == username:
 						continue
 					if player in players_list:
@@ -137,17 +137,26 @@ def get_snipers(players_list):
 			if player == username:
 				continue
 			if blacklist:
-				if player.lower() in [p.lower() for p in blacklist]:
-					logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
-					snipers_data["snipers"].append(player)
-					continue
-			if prev_games:
-				for prev_players in prev_games:
-					if player.lower() in [p.lower() for p in prev_players]:
-						if player not in snipers_data["suspects"]:
-							logger.info("ENCONTRÉ UN POSIBLE SNIPER: {}".format(player))
-							snipers_data["suspects"].append(player)
-							continue
+				if EVIL_MEDIATONIC:
+					if player.lower() in [p.lower()[-3:] for p in blacklist]:
+						logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
+						for i, p in enumerate(blacklist):
+							if player == p.lower()[-3:]:
+								snipers_data["snipers"].append(blacklist[i])
+								continue
+				else:
+					if player.lower() in [p.lower() for p in blacklist]:
+						logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
+						snipers_data["snipers"].append(player)
+						continue
+			if not EVIL_MEDIATONIC:
+				if prev_games:
+					for prev_players in prev_games:
+							if player.lower() in [p.lower() for p in prev_players]:
+								if player not in snipers_data["suspects"]:
+									logger.info("ENCONTRÉ UN POSIBLE SNIPER: {}".format(player))
+									snipers_data["suspects"].append(player)
+									continue
 		logger.debug(snipers_data)
 		return snipers_data
 	except Exception as ex:
