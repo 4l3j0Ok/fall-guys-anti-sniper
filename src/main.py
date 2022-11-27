@@ -78,6 +78,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.setupUi(self)
 			self.ui_basic_config()
 			self.run_worker()
+			self.init_alerts()
 		except Exception as ex:
 			logger.exception(ex)
 
@@ -103,19 +104,8 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.add_player_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="current"))
 			self.add_suspect_to_blacklist_button.clicked.connect(lambda: self.add_to_blacklist(selected_list="suspects"))
 			self.add_manually_button.clicked.connect(self.add_player_manually)
-			if config.EVIL_MEDIATONIC:
-				self.current_game_players_list.addItem("Temporalmente deshabilitado.")
-				self.current_game_players_list.addItem("Vas a tener que agregar jugadores")
-				self.current_game_players_list.addItem("manualmente tocando el botón '+'.")
-				self.current_game_players_list.addItem("Gracias Mediatonic.")
-				self.suspects_list.addItem("Temporalmente deshabilitado.")
-				self.suspects_list.addItem("Gracias Mediatonic.")
-				self.suspects_label.setDisabled(True)
-				self.suspects_list.setDisabled(True)
-				self.add_suspect_to_blacklist_button.setDisabled(True)
-				self.current_game_label.setDisabled(True)
-				self.current_game_players_list.setDisabled(True)
-				self.add_player_to_blacklist_button.setDisabled(True)
+			self.show()
+				
 		except Exception as ex:
 			logger.exception(ex)
 			pass
@@ -201,7 +191,6 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		self.fill_snipers()
 
 
-
 	def add_to_blacklist(self, selected_list=None, player_name=None):
 		err_msg_box = QMessageBox(self)
 		err_msg_box.setWindowTitle("Agregar a la lista negra")
@@ -263,9 +252,6 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 
 	def fill_players(self, players_list):
-		if config.EVIL_MEDIATONIC:
-			self.global_players_list = players_list
-			return
 		self.clear_players_lists()
 		logger.info("Llenando la lista con los nuevos jugadores.")
 		for player in players_list:
@@ -282,10 +268,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 	def fill_snipers(self, data=None, first=False):
 		if not data:
-			if config.EVIL_MEDIATONIC:
-				players_list = self.global_players_list
-			else:
-				players_list = [self.current_game_players_list.item(i).text() for i in range(self.current_game_players_list.count())]
+			players_list = [self.current_game_players_list.item(i).text() for i in range(self.current_game_players_list.count())]
 			data = utils.get_snipers(players_list)
 		self.clear_snipers()
 		logger.info("Llenando la lista de snipers.")
@@ -310,11 +293,10 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 
 
 	def clear_snipers(self):
-		if not config.EVIL_MEDIATONIC:
-			logger.info("Limpiando la lista de snipers antigua.")
-			self.snipers_list.clear()
-			logger.info("Limpiando la lista de posibles snipers antigua.")
-			self.suspects_list.clear()
+		logger.info("Limpiando la lista de snipers antigua.")
+		self.snipers_list.clear()
+		logger.info("Limpiando la lista de posibles snipers antigua.")
+		self.suspects_list.clear()
 
 
 	def clear_players_lists(self):
@@ -360,7 +342,6 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		msg_box.setInformativeText("Puede eliminar esta versión si lo desea.")
 		msg_box.exec_()
 		return
-
 
 
 	def export_as_csv(self):
@@ -455,6 +436,25 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			pass
 
 
+	def init_alerts(self):
+		data = utils.get_data()
+		data["preferences"] = data.get("preferences", {})
+		if config.EVIL_MEDIATONIC:
+			if not data["preferences"].get("hide_evil_mt_alert"):
+				hide_alert = msgBox.warning_result(
+					self,
+					title="Aviso",
+					text="Mediatonic modificó los logs y los nombres no se muestran en su totalidad,\n"
+						"por lo tanto, los nombres en la aplicacion se mostrarán con las últimas 3 letras.\n"
+						"Puedes agregar los nombres manualmente en el botón '+', o buscar por las últimas 3 letras en la lista de jugadores.",
+					inf_text="Nota: <b>La aplicación tendrá en cuenta mayúsculas y minúsculas</b>",
+					yes="No volver a mostrar",
+					no="Recordármelo"
+				)
+				if hide_alert:
+					data["preferences"]["hide_evil_mt_alert"] = True
+					utils.save_data(data)
+
 
 def main():
 	try:
@@ -463,7 +463,6 @@ def main():
 		app = QApplication(sys.argv)
 		app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 		home = HomeWindow()
-		home.show()
 		app.exec_()
 	except Exception as ex:
 		logger.exception(ex)
