@@ -7,7 +7,7 @@ Run the build process by running the command 'python setup.py build'
 If everything works well you should find a subdirectory in the build
 subdirectory that contains the files needed to run the application
 """
-
+import config
 import sys
 
 from cx_Freeze import Executable, setup
@@ -53,8 +53,8 @@ executables = [Executable(".\src\main.py", base=base, target_name="FGAntiSniper"
 
 setup(
     name="FGAntiSniper",
-    version="1.7",
-    description="Fall Guys Anti Sniper",
+    version=config.APP_VERSION,
+    description=config.APP_NAME,
     author="Alejoide",
     options={
         "build_exe": build_exe_options,
