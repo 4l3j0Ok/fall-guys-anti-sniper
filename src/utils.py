@@ -138,21 +138,42 @@ def get_snipers(players_list):
 				continue
 			if blacklist:
 				if EVIL_MEDIATONIC:
-					if player.lower() in [p.lower()[-3:] for p in blacklist]:
-						logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
-						for i, p in enumerate(blacklist):
-							if player == p.lower()[-3:]:
-								snipers_data["snipers"].append(blacklist[i])
-								continue
+					if not CASE_SENSITIVE:
+						if player.lower() in [p.lower()[-3:] for p in blacklist]:
+							logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
+							for i, p in enumerate(blacklist):
+								if player == p.lower()[-3:]:
+									snipers_data["snipers"].append(blacklist[i])
+									continue
+					else:
+						if player in [p for p in blacklist]:
+							logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
+							for i, p in enumerate(blacklist):
+								if player == p:
+									snipers_data["snipers"].append(blacklist[i])
+									continue
 				else:
-					if player.lower() in [p.lower() for p in blacklist]:
-						logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
-						snipers_data["snipers"].append(player)
-						continue
+					if not CASE_SENSITIVE:
+						if player.lower() in [p.lower() for p in blacklist]:
+							logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
+							snipers_data["snipers"].append(player)
+							continue
+					else:
+						if player in [p for p in blacklist]:
+							logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
+							snipers_data["snipers"].append(player)
+							continue
 			if not EVIL_MEDIATONIC:
 				if prev_games:
 					for prev_players in prev_games:
+						if not CASE_SENSITIVE:
 							if player.lower() in [p.lower() for p in prev_players]:
+								if player not in snipers_data["suspects"]:
+									logger.info("ENCONTRÉ UN POSIBLE SNIPER: {}".format(player))
+									snipers_data["suspects"].append(player)
+									continue
+						else:
+							if player in [p for p in prev_players]:
 								if player not in snipers_data["suspects"]:
 									logger.info("ENCONTRÉ UN POSIBLE SNIPER: {}".format(player))
 									snipers_data["suspects"].append(player)
@@ -314,6 +335,7 @@ def clear_log():
 		dest = APP_LOG_FILE_PATH.replace(".log", "_old.log")
 		shutil.copy(APP_LOG_FILE_PATH, dest)
 		open(APP_LOG_FILE_PATH, "w+").close()
+		logger.debug("Log vaciado con éxito.")
 		logger.info("Log antiguo guardado en {}.".format(dest))
 	except Exception as ex:
 		logger.exception(ex)

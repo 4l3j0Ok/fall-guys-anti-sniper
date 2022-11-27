@@ -26,6 +26,21 @@ class Worker(QObject):
 
 	def run(self):
 		try:
+			logger.debug("Worker started.")
+			logger.debug(
+				"""
+				Current Config:
+					APP_NAME = {app_name}
+					APP_VERSION = {app_version}
+					EVIL_MEDIATONIC = {evil_mediatonic}
+					CASE_SENSITIVE = {case_sensitive}
+				""".format(
+					app_name = config.APP_NAME,
+					app_version = config.APP_VERSION,
+					evil_mediatonic = config.EVIL_MEDIATONIC,
+					case_sensitive = config.CASE_SENSITIVE
+				)
+			)
 			self.blacklist_signal.emit(utils.get_data("blacklist", []))
 			self.new_release_signal.emit(utils.check_new_release())
 			players_list = []
@@ -444,6 +459,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 def main():
 	try:
 		utils.clear_log()
+		logger.debug("Comienza Fall Guys Anti Sniper v{}".format(config.APP_VERSION))
 		app = QApplication(sys.argv)
 		app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 		home = HomeWindow()
