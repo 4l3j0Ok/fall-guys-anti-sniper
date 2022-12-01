@@ -108,7 +108,6 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 				
 		except Exception as ex:
 			logger.exception(ex)
-			pass
 
 
 	def show_preferences(self):
