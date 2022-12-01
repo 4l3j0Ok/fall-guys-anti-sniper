@@ -14,7 +14,7 @@ import updater
 from logger import logger
 from static.main_ui import Ui_MainWindow
 import static.resources
-from msg_boxes import msgBox
+from msg_boxes import MsgBox
 
 
 class Worker(QObject):
@@ -88,7 +88,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 			self.windowIcon = QIcon(":/static/icon.png")
 			self.setWindowIcon(self.windowIcon)
 			self.action_about.triggered.connect(
-				lambda: msgBox.question(
+				lambda: MsgBox.question(
 					self,
 					title="Acerca de",
 					text=cfg.ABOUT_STRING
@@ -123,23 +123,24 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 	def clear_blacklist(self):
 		title = "Limpiar lista negra"
 		if not self.blacklist_list:
-			msgBox.info(
+			MsgBox.info(
 				self,
 				title=title,
 				text="La lista negra está vacía."
 				)
 			return
-		result = msgBox.warning_result(
+		result = MsgBox.warning(
 			self,
 			title=title,
 			text="¿Estás seguro de querer limpiar la lista negra?",
-			inf_text="Esta acción no se puede deshacer."
+			inf_text="Esta acción no se puede deshacer.",
+			return_result=True
 			)
 		if result:
 			logger.info("Limpiando la blacklist.")
 			success = utils.clear_blacklist()
 			if not success:
-				msgBox.error(
+				MsgBox.error(
 					self,
 					title=title,
 					text="Hubo un error al eliminar el jugador."
@@ -441,13 +442,14 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 		data["preferences"] = data.get("preferences", {})
 		if cfg.EVIL_MEDIATONIC:
 			if not data["preferences"].get("hide_evil_mt_alert"):
-				hide_alert = msgBox.warning_result(
+				hide_alert = MsgBox.warning(
 					self,
 					title="Aviso",
 					text="Mediatonic modificó los logs y los nombres no se muestran en su totalidad,\n"
 						"por lo tanto, los nombres en la aplicacion se mostrarán con las últimas 3 letras.\n"
 						"Puedes agregar los nombres manualmente en el botón '+', o buscar por las últimas 3 letras en la lista de jugadores.",
 					inf_text="Nota: <b>La aplicación tendrá en cuenta mayúsculas y minúsculas</b>",
+					return_result=True,
 					yes="No volver a mostrar",
 					no="Recordármelo"
 				)
