@@ -2,8 +2,7 @@
 import json
 import csv
 from itertools import zip_longest
-from datetime import datetime
-from config import *
+import config as cfg
 from logger import logger
 import requests
 import shutil
@@ -11,11 +10,11 @@ import shutil
 
 def find_new_game(index_list, cached_line, playing=False):
 	try:
-		with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
+		with open(cfg.LOG_FILE_PATH, "r", encoding="utf8") as f:
 			lines = f.readlines()
 			if not playing:
 				for index, line in enumerate(lines):
-					if POSSIBLE_GAME_TARGET_STRING in line:
+					if cfg.POSSIBLE_GAME_TARGET_STRING in line:
 						if index not in index_list:
 							index_list.append(index)
 							logger.debug("Encontré el FOUND_GAME_TARGET_STRING")
@@ -23,18 +22,18 @@ def find_new_game(index_list, cached_line, playing=False):
 							return False, index_list, cached_line, playing
 			for index, line in enumerate(reversed(lines[index_list[-1]:])):
 				if playing:
-					if GAME_OVER_TARGET_STRING in line:
+					if cfg.GAME_OVER_TARGET_STRING in line:
 						logger.info("Juego terminado.")
 						return False, index_list, "", False
 				else:
-					if GAME_OVER_TARGET_STRING in line:
+					if cfg.GAME_OVER_TARGET_STRING in line:
 						return False, index_list, "", False
 					if not cached_line:
-						if POSSIBLE_GAME_TARGET_STRING in line:
+						if cfg.POSSIBLE_GAME_TARGET_STRING in line:
 							logger.info("POSIBLE PARTIDA ENCONTRADA!")
 							return False, index_list, line, False
 					else:
-						if FOUND_GAME_TARGET_STRING in line:
+						if cfg.FOUND_GAME_TARGET_STRING in line:
 							logger.info("PARTIDA ENCONTRADA!")
 							return True, index_list, "", True
 			return False, index_list, cached_line, playing
@@ -45,13 +44,13 @@ def find_new_game(index_list, cached_line, playing=False):
 
 def get_username():
 	try:
-		with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
+		with open(cfg.LOG_FILE_PATH, "r", encoding="utf8") as f:
 			username = None
 			lines = f.readlines()
 			for line in lines:
-				if USERNAME_TARGET_STRING in line:
+				if cfg.USERNAME_TARGET_STRING in line:
 					logger.info("Último nombre del jugador obtenido!")
-					username = line.split(USERNAME_TARGET_STRING)[1].replace("\n", "")
+					username = line.split(cfg.USERNAME_TARGET_STRING)[1].replace("\n", "")
 					data = get_data()
 					logger.debug("Guardando el nombre en data.json")
 					logger.debug(username)
@@ -70,10 +69,10 @@ def get_players(index, username):
 		finished = False
 		logger.info("Voy a armar la lista de jugadores...")
 		while True:
-			with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
+			with open(cfg.LOG_FILE_PATH, "r", encoding="utf8") as f:
 				lines = f.readlines()
 				for line in lines[index:]:
-					if PLAYER_TARGET_STRING in line:
+					if cfg.PLAYER_TARGET_STRING in line:
 						player = line.replace(line.split("...")[0] + "...", "").replace(" (" + line.split(" (")[1], "")
 						if player == username:
 							continue
@@ -81,7 +80,7 @@ def get_players(index, username):
 							continue
 						logger.info("Encontré el jugador '{}', lo guardo en la lista de jugadores.".format(player))
 						players_list.append(player)
-					if BREAK_TARGET_STRING in line:
+					if cfg.BREAK_TARGET_STRING in line:
 						finished = True
 						break
 			if finished:
@@ -96,21 +95,21 @@ def get_players(index, username):
 
 def update_prev_games_players(index, username):
 	try:
-		with open(LOG_FILE_PATH, "r", encoding="utf8") as f:
+		with open(cfg.LOG_FILE_PATH, "r", encoding="utf8") as f:
 			data = get_data()
 			lines = f.readlines()
 			players_list = []
 			for line in lines[:index]:
-				if PLAYER_TARGET_STRING in line:
+				if cfg.PLAYER_TARGET_STRING in line:
 					player = line.replace(line.split("...")[0] + "...", "").replace(" (" + line.split(" (")[1], "")
 					if player == username:
 						continue
 					if player in players_list:
 						continue
 					players_list.append(player)
-				if BREAK_TARGET_STRING in line:
+				if cfg.BREAK_TARGET_STRING in line:
 					data["prev_games_players"] = data.get("prev_games_players", [])
-					if len(data["prev_games_players"]) == PREV_GAMES_LIMIT:
+					if len(data["prev_games_players"]) == cfg.PREV_GAMES_LIMIT:
 						data["prev_games_players"].pop(0)
 					logger.info("Guardando la lista anterior de jugadores...")
 					data["prev_games_players"].append([player for player in players_list])
@@ -137,8 +136,8 @@ def get_snipers(players_list):
 			if player == username:
 				continue
 			if blacklist:
-				if EVIL_MEDIATONIC:
-					if not CASE_SENSITIVE:
+				if cfg.EVIL_MEDIATONIC:
+					if not cfg.CASE_SENSITIVE:
 						if player.lower() in [p.lower()[-3:] for p in blacklist]:
 							logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
 							for i, p in enumerate(blacklist):
@@ -153,7 +152,7 @@ def get_snipers(players_list):
 									snipers_data["snipers"].append(blacklist[i])
 									continue
 				else:
-					if not CASE_SENSITIVE:
+					if not cfg.CASE_SENSITIVE:
 						if player.lower() in [p.lower() for p in blacklist]:
 							logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
 							snipers_data["snipers"].append(player)
@@ -163,10 +162,10 @@ def get_snipers(players_list):
 							logger.info("ENCONTRÉ UN SNIPER: {}".format(player))
 							snipers_data["snipers"].append(player)
 							continue
-			if not EVIL_MEDIATONIC:
+			if not cfg.EVIL_MEDIATONIC:
 				if prev_games:
 					for prev_players in prev_games:
-						if not CASE_SENSITIVE:
+						if not cfg.CASE_SENSITIVE:
 							if player.lower() in [p.lower() for p in prev_players]:
 								if player not in snipers_data["suspects"]:
 									logger.info("ENCONTRÉ UN POSIBLE SNIPER: {}".format(player))
@@ -187,13 +186,13 @@ def get_snipers(players_list):
 
 def get_data(key=None, default=None):
 	try:
-		with open(DATA_PATH, "r") as f:
+		with open(cfg.DATA_PATH, "r") as f:
 			data = json.load(f)
 			if key:
 				return data.get(key, default)
 			return data
-	except:
-		with open(DATA_PATH, "w+") as f:
+	except Exception:
+		with open(cfg.DATA_PATH, "w+") as f:
 			if default != None:
 				return default
 			return {}
@@ -201,7 +200,7 @@ def get_data(key=None, default=None):
 
 def save_data(data):
 	try:
-		with open(DATA_PATH, "w", encoding="utf8") as f:
+		with open(cfg.DATA_PATH, "w", encoding="utf8") as f:
 			json.dump(data, f)
 			return True
 	except Exception as ex:
@@ -298,7 +297,7 @@ def check_new_release():
 	try:
 		logger.info("Chequeando si hay nuevos releases.")
 		try:
-			response = requests.get(GITHUB_API_URL, timeout=5).json()
+			response = requests.get(cfg.GITHUB_API_URL, timeout=5).json()
 		except requests.Timeout as exw:
 			logger.exception(exw)
 			return False
@@ -307,7 +306,7 @@ def check_new_release():
 			return False
 		if response.get("tag_name"):
 			latest_version = float(response.get("tag_name").replace("v", ""))
-			if latest_version > APP_VERSION:
+			if latest_version > cfg.APP_VERSION:
 				return True
 		logger.info("No encontré nuevos releases.")
 		return False
@@ -318,23 +317,23 @@ def check_new_release():
 
 def get_latest_version():
 	try:
-		response = requests.get(GITHUB_API_URL).json()
+		response = requests.get(cfg.GITHUB_API_URL).json()
 	except requests.Timeout as exw:
 		logger.exception(exw)
-		return False, ERR_CONNECTION
+		return False, cfg.ERR_CONNECTION
 	except requests.ConnectionError as exw:
 		logger.exception(exw)
-		return False, ERR_CONNECTION
+		return False, cfg.ERR_CONNECTION
 	if response.get("tag_name"):
 		return True, response["tag_name"]
-	return False, ERR_TAG_NAME
+	return False, cfg.ERR_TAG_NAME
 
 
 def clear_log():
 	try:
-		dest = APP_LOG_FILE_PATH.replace(".log", "_old.log")
-		shutil.copy(APP_LOG_FILE_PATH, dest)
-		open(APP_LOG_FILE_PATH, "w+").close()
+		dest = cfg.APP_LOG_FILE_PATH.replace(".log", "_old.log")
+		shutil.copy(cfg.APP_LOG_FILE_PATH, dest)
+		open(cfg.APP_LOG_FILE_PATH, "w+").close()
 		logger.debug("Log vaciado con éxito.")
 		logger.info("Log antiguo guardado en {}.".format(dest))
 	except Exception as ex:

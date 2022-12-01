@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit, QFileDialog, QWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QInputDialog, QLineEdit, QFileDialog
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QThread, QObject, QCoreApplication, pyqtSignal, QThreadPool
 from PyQt5.QtMultimedia import QSound
@@ -9,7 +9,7 @@ import time
 import qdarkstyle
 import preferences
 import utils
-import config
+import config as cfg
 import updater
 from logger import logger
 from static.main_ui import Ui_MainWindow
@@ -35,10 +35,10 @@ class Worker(QObject):
 					EVIL_MEDIATONIC = {evil_mediatonic}
 					CASE_SENSITIVE = {case_sensitive}
 				""".format(
-					app_name = config.APP_NAME,
-					app_version = config.APP_VERSION,
-					evil_mediatonic = config.EVIL_MEDIATONIC,
-					case_sensitive = config.CASE_SENSITIVE
+					app_name = cfg.APP_NAME,
+					app_version = cfg.APP_VERSION,
+					evil_mediatonic = cfg.EVIL_MEDIATONIC,
+					case_sensitive = cfg.CASE_SENSITIVE
 				)
 			)
 			self.blacklist_signal.emit(utils.get_data("blacklist", []))
@@ -91,7 +91,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 				lambda: msgBox.question(
 					self,
 					title="Acerca de",
-					text=config.ABOUT_STRING
+					text=cfg.ABOUT_STRING
 					)
 				)
 			self.action_export_as_csv.triggered.connect(self.export_as_csv)
@@ -439,7 +439,7 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 	def init_alerts(self):
 		data = utils.get_data()
 		data["preferences"] = data.get("preferences", {})
-		if config.EVIL_MEDIATONIC:
+		if cfg.EVIL_MEDIATONIC:
 			if not data["preferences"].get("hide_evil_mt_alert"):
 				hide_alert = msgBox.warning_result(
 					self,
@@ -459,10 +459,10 @@ class HomeWindow(QMainWindow, Ui_MainWindow):
 def main():
 	try:
 		utils.clear_log()
-		logger.debug("Comienza Fall Guys Anti Sniper v{}".format(config.APP_VERSION))
+		logger.debug("Comienza Fall Guys Anti Sniper v{}".format(cfg.APP_VERSION))
 		app = QApplication(sys.argv)
 		app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-		home = HomeWindow()
+		HomeWindow()
 		app.exec_()
 	except Exception as ex:
 		logger.exception(ex)

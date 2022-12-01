@@ -1,11 +1,3 @@
-import os
-import shutil
-from zipfile import ZipFile
-import requests
-import utils
-import config
-from logger import logger
-import json
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QMessageBox
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-import os
+
 
 logging.basicConfig(
 	filename='application.log',
