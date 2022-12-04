@@ -63,6 +63,10 @@ def get_username():
 		return None
 
 
+def get_username_by_data():
+	data = get_data()
+	return data.get("username")
+
 def get_players(index, username):
 	try:
 		players_list = []

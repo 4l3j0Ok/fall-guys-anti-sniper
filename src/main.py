@@ -47,9 +47,7 @@ class Worker(QObject):
 			index_list = [0]
 			cached_line = ""
 			playing = False
-			username = None
-			while not username:
-				username = utils.get_username()
+			username = utils.get_username_by_data()
 			logger.info("Buscando nueva partida...")
 			while True:
 				if playing:
