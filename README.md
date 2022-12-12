@@ -1,5 +1,5 @@
 # Fall Guys Anti Sniper
-![AitorekBobo](https://raw.githubusercontent.com/4l3j0Ok/fall-guys-anti-sniper/main/src/static/icon.png)
+<p align="center"><img src="https://raw.githubusercontent.com/4l3j0Ok/fall-guys-anti-sniper/main/src/static/icon.png"></p>
 ### NOTA: Parece que a Mediatonic le dio por ocultar los nombres de los jugadores de los logs del juego (que es de donde la aplicación obtenía los nombres de los jugadores), por lo tanto, al menos hasta que los vuelvan a poner, la aplicación no podrá mostrar los nombres de los jugadores, y, por lo tanto, la lógica que detecta posibles snipers, queda totalmente obsoleta. La lógica de detectar snipers, sigue funcionando, pero puede fallar si hay nombres parecidos. Denle las gracias a MT.
 ## [Video explicativo](https://www.youtube.com/watch?v=QgWsRF-0FxI)
 
